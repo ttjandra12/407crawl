@@ -48,29 +48,29 @@ void loop() {
   //the random numbers generated will be stored in a string formatted as a CSV
   String dataString = "";
 
-  //press button connected to pin 7 to generate three random numbers and have it saved on the SD card
-  if (buttonState == HIGH){
-
-    //for loop to generate random numbers
-    for (int i = 0; i < 3; i++){
-      int sensor = random(1,10);
-      dataString += String(sensor);
-      if (i < 2) {
-        dataString += ",";
-      }
-    }
-
-    //opening file on SD card and writing data string onto it
-    myFile = SD.open("test1.csv", FILE_WRITE);
-    if (myFile){
-      myFile.println(dataString);
-      myFile.close();
-      Serial.println("complete");
-      delay(1000);
-    } else {
-      Serial.println("error opening test1.csv");
-    }
-  }
+//  //press button connected to pin 7 to generate three random numbers and have it saved on the SD card
+//  if (buttonState == HIGH){
+//
+//    //for loop to generate random numbers
+//    for (int i = 0; i < 3; i++){
+//      int sensor = random(1,10);
+//      dataString += String(sensor);
+//      if (i < 2) {
+//        dataString += ",";
+//      }
+//    }
+//
+//    //opening file on SD card and writing data string onto it
+//    myFile = SD.open("test1.csv", FILE_WRITE);
+//    if (myFile){
+//      myFile.println(dataString);
+//      myFile.close();
+//      Serial.println("complete");
+//      delay(1000);
+//    } else {
+//      Serial.println("error opening test1.csv");
+//    }
+//  }
 
   //press button connected to pin 8 to display the values saved in the SD card
   if (printState == HIGH){
@@ -88,8 +88,8 @@ void loop() {
   }
 
 //use this code to delete the csv file
-//  if (printState == HIGH){
-//    SD.remove("test1.csv");
-//  }
+  if (buttonState == HIGH){
+    SD.remove("test1.csv");
+  }
 
 }
