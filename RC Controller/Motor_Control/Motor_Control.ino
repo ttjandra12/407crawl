@@ -22,14 +22,17 @@ int in3 = 24;
 int in4 = 25;
 
 int enC = 4;  // Motor three
-int in5 = 26;
-int in6 = 27;
+int in5 = 28;
+int in6 = 29;
 
 int enD = 5;  // Motor four
-int in7 = 28;
-int in8 = 29;
+int in7 = 26;
+int in8 = 27;
 
 void setup() {
+  // initialize serial communication at 9600 bits per second:
+  Serial.begin(115200);
+  
   // Set input pins
   pinMode(chA, INPUT);
   pinMode(chB,INPUT);
@@ -55,64 +58,64 @@ void setup() {
 
 void loop() {
  ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
- ch2 = pulseIn (chB,HIGH);  //Read and store channel 1
- ch3 = pulseIn (chC,HIGH);  //Read and store channel 1
- ch4 = pulseIn (chD,HIGH);  //Read and store channel 1
- ch5 = pulseIn (chE,HIGH);  //Read and store channel 1
- ch6 = pulseIn (chF,HIGH);  //Read and store channel 1
+ ch2 = pulseIn (chB,HIGH);  //Read and store channel 2
+ ch3 = pulseIn (chC,HIGH);  //Read and store channel 3
+ ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
+ ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
+ ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
 
   if (ch4>1300 && ch4<1700)
   {
     if (ch3 <1300)
     {
       // turn on motor one
-      analogWrite(enA, HIGH);
+      digitalWrite(enA, HIGH);
       digitalWrite(in1, HIGH);
       digitalWrite(in2, LOW);
       
       // turn on motor two
-      analogWrite(enB, HIGH);
+      digitalWrite(enB, HIGH);
       digitalWrite(in3, HIGH);
       digitalWrite(in4, LOW);
       
       // turn on motor three
-      analogWrite(enC, HIGH);
+      digitalWrite(enC, HIGH);
       digitalWrite(in5, HIGH);
       digitalWrite(in6, LOW);
       
       // turn on motor four
-      analogWrite(enD, HIGH);
+      analogWrite(enD, 200);
       digitalWrite(in7, HIGH);
       digitalWrite(in8, LOW);
     }
   
     if (ch3>1300 && ch3<1700)
     {
-      analogWrite(enA, LOW);
-      analogWrite(enB, LOW);
-      analogWrite(enC, LOW);
-      analogWrite(enD, LOW);
+      analogWrite(enA, 0);
+      analogWrite(enB, 0);
+      analogWrite(enC, 0);
+      analogWrite(enD, 0);
     }
 
     if (ch3 >1700)
     {
       // turn on motor one, reverse
-      analogWrite(enA, HIGH);
+      analogWrite(enA, 200);
       digitalWrite(in1, LOW);
       digitalWrite(in2, HIGH);
       
       // turn on motor two, reverse
-      analogWrite(enB, HIGH);
+      analogWrite(enB, 200);
       digitalWrite(in3, LOW);
       digitalWrite(in4, HIGH);
       
       // turn on motor three, reverse
-      analogWrite(enC, HIGH);
+      analogWrite(enC, 200);
       digitalWrite(in5, LOW);
       digitalWrite(in6, HIGH);
       
       // turn on motor four, reverse
-      analogWrite(enD, HIGH);
+      analogWrite(enD, 200);
       digitalWrite(in7, LOW);
       digitalWrite(in8, HIGH);
     }
@@ -121,22 +124,22 @@ void loop() {
   if (ch4<1300)
   {
     // turn on motor one, forward
-      analogWrite(enA, HIGH);
+      analogWrite(enA, 200);
       digitalWrite(in1, HIGH);
       digitalWrite(in2, LOW);
       
       // turn on motor two, reverse
-      analogWrite(enB, HIGH);
+      analogWrite(enB, 200);
       digitalWrite(in3, LOW);
       digitalWrite(in4, HIGH);
       
       // turn on motor three, forward
-      analogWrite(enC, HIGH);
+      analogWrite(enC, 200);
       digitalWrite(in5, HIGH);
       digitalWrite(in6, LOW);
       
       // turn on motor four, reverse
-      analogWrite(enD, HIGH);
+      analogWrite(enD, 200);
       digitalWrite(in7, LOW);
       digitalWrite(in8, HIGH);
   }
@@ -144,23 +147,35 @@ void loop() {
   if (ch4>1700)
   {
     // turn on motor one, reverse
-      analogWrite(enA, HIGH);
+      analogWrite(enA, 200);
       digitalWrite(in1, LOW);
       digitalWrite(in2, HIGH);
       
       // turn on motor two, forward
-      analogWrite(enB, HIGH);
+      analogWrite(enB, 200);
       digitalWrite(in3, HIGH);
       digitalWrite(in4, LOW);
       
       // turn on motor three, reverse
-      analogWrite(enC, HIGH);
+      analogWrite(enC, 200);
       digitalWrite(in5, LOW);
       digitalWrite(in6, HIGH);
       
       // turn on motor four, forward
-      analogWrite(enD, HIGH);
+      analogWrite(enD, 200);
       digitalWrite(in7, HIGH);
       digitalWrite(in8, LOW);
   }
+  
+  ch3 = pulseIn (chC,HIGH);
+  Serial.print ("Ch3:");
+  Serial.print (ch3);
+  Serial.print ("|");
+  
+  ch4 = pulseIn (chD,HIGH);
+  Serial.print ("Ch4:");
+  Serial.print (ch4);
+  Serial.print ("|");
+
+  delay (3000);
 }
