@@ -69,24 +69,24 @@ void loop() {
     if (ch3 <1300)
     {
       // turn on motor one
-      digitalWrite(enA, HIGH);
+      analogWrite(enA, 200);
       digitalWrite(in1, HIGH);
       digitalWrite(in2, LOW);
       
       // turn on motor two
-      digitalWrite(enB, HIGH);
+      analogWrite(enB, 200);
       digitalWrite(in3, HIGH);
       digitalWrite(in4, LOW);
       
       // turn on motor three
-      digitalWrite(enC, HIGH);
+      analogWrite(enC, 200);
       digitalWrite(in5, HIGH);
       digitalWrite(in6, LOW);
       
       // turn on motor four
       analogWrite(enD, 200);
-      digitalWrite(in7, HIGH);
-      digitalWrite(in8, LOW);
+      digitalWrite(in7, LOW);
+      digitalWrite(in8, HIGH);
     }
   
     if (ch3>1300 && ch3<1700)
@@ -116,8 +116,8 @@ void loop() {
       
       // turn on motor four, reverse
       analogWrite(enD, 200);
-      digitalWrite(in7, LOW);
-      digitalWrite(in8, HIGH);
+      digitalWrite(in7, HIGH);
+      digitalWrite(in8, LOW);
     }
   }
 
@@ -135,8 +135,8 @@ void loop() {
       
       // turn on motor three, forward
       analogWrite(enC, 200);
-      digitalWrite(in5, HIGH);
-      digitalWrite(in6, LOW);
+      digitalWrite(in5, LOW);
+      digitalWrite(in6, HIGH);
       
       // turn on motor four, reverse
       analogWrite(enD, 200);
@@ -158,8 +158,8 @@ void loop() {
       
       // turn on motor three, reverse
       analogWrite(enC, 200);
-      digitalWrite(in5, LOW);
-      digitalWrite(in6, HIGH);
+      digitalWrite(in5, HIGH);
+      digitalWrite(in6, LOW);
       
       // turn on motor four, forward
       analogWrite(enD, 200);
@@ -176,6 +176,4 @@ void loop() {
   Serial.print ("Ch4:");
   Serial.print (ch4);
   Serial.print ("|");
-
-  delay (3000);
 }
