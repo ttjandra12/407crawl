@@ -252,6 +252,14 @@
 <text x="0" y="2.794" size="1.27" layer="25">&gt;NAME</text>
 <text x="0" y="-3.556" size="1.27" layer="27">&gt;VALUE</text>
 </package>
+<package name="MOUNTING_HOLE">
+<pad name="P$1" x="0" y="0" drill="3.175" diameter="4.445"/>
+</package>
+<package name="FIDUCIAL_40MIL">
+<circle x="0" y="0" radius="0.762" width="0.6096" layer="29"/>
+<circle x="0" y="0" radius="1.04726875" width="0.127" layer="41"/>
+<smd name="P$1" x="0" y="0" dx="1.016" dy="1.016" layer="1" roundness="100"/>
+</package>
 </packages>
 <packages3d>
 <package3d name="DIL16" urn="urn:adsk.eagle:package:14439/1" type="box">
@@ -348,6 +356,20 @@
 <wire x1="-1.905" y1="0" x2="1.905" y2="0" width="0.254" layer="94"/>
 <pin name="GND" x="0" y="2.54" visible="off" length="short" direction="sup" rot="R270"/>
 <text x="-2.54" y="-2.54" size="1.778" layer="96">&gt;VALUE</text>
+</symbol>
+<symbol name="MOUNTING_HOLE">
+<circle x="0" y="2.54" radius="2.54" width="0.254" layer="94"/>
+<pin name="P$1" x="0" y="-5.08" visible="off" length="middle" rot="R90"/>
+<text x="0.762" y="-2.032" size="1.27" layer="95">&gt;NAME</text>
+</symbol>
+<symbol name="FIDUCIAL">
+<wire x1="-2.54" y1="-2.54" x2="2.54" y2="2.54" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="2.54" x2="2.54" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="2.54" x2="2.54" y2="2.54" width="0.254" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="2.54" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="2.54" y1="-2.54" x2="-2.54" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="-2.54" x2="-2.54" y2="2.54" width="0.254" layer="94"/>
+<pin name="P$1" x="0" y="0" visible="off" length="point" direction="nc"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -461,6 +483,37 @@ DIN A3, landscape with location and doc. field</description>
 </gates>
 <devices>
 <device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="MOUNTING_HOLE" prefix="MGT">
+<description>Chassis Mounting Hole w/GND connection ability</description>
+<gates>
+<gate name="G$1" symbol="MOUNTING_HOLE" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="MOUNTING_HOLE">
+<connects>
+<connect gate="G$1" pin="P$1" pad="P$1"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="FIDUCIAL" prefix="FUD">
+<gates>
+<gate name="G$1" symbol="FIDUCIAL" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="FIDUCIAL_40MIL">
+<connects>
+<connect gate="G$1" pin="P$1" pad="P$1"/>
+</connects>
 <technologies>
 <technology name=""/>
 </technologies>
@@ -6704,7 +6757,7 @@ Metric Code Size 5664</description>
 <part name="C11" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="C-US" device="025-024X044" package3d_urn="urn:adsk.eagle:package:6240324/1" value="0.1uF"/>
 <part name="U$12" library="ENGI301" deviceset="LASER_REC" device=""/>
 <part name="R12" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="0204/2V" package3d_urn="urn:adsk.eagle:package:6240630/1" value="1k"/>
-<part name="C12" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="C-US" device="050-024X044" package3d_urn="urn:adsk.eagle:package:6240356/1" value="0.1uF"/>
+<part name="C12" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="C-US" device="025-024X044" package3d_urn="urn:adsk.eagle:package:6240324/1" value="0.1uF"/>
 <part name="U$13" library="ENGI301" deviceset="LASER_REC" device=""/>
 <part name="R13" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="0204/2V" package3d_urn="urn:adsk.eagle:package:6240630/1" value="1k"/>
 <part name="C13" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="C-US" device="025-024X044" package3d_urn="urn:adsk.eagle:package:6240324/1" value="0.1uF"/>
@@ -6754,6 +6807,15 @@ Metric Code Size 5664</description>
 <part name="GND16" library="ENGI301" deviceset="GND" device=""/>
 <part name="U$35" library="ENGI301" deviceset="VIN_5V" device=""/>
 <part name="JP2" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1"/>
+<part name="GND17" library="ENGI301" deviceset="GND" device=""/>
+<part name="GND18" library="ENGI301" deviceset="GND" device=""/>
+<part name="GND19" library="ENGI301" deviceset="GND" device=""/>
+<part name="MGT1" library="ENGI301" deviceset="MOUNTING_HOLE" device=""/>
+<part name="MGT2" library="ENGI301" deviceset="MOUNTING_HOLE" device=""/>
+<part name="FUD1" library="ENGI301" deviceset="FIDUCIAL" device=""/>
+<part name="FUD2" library="ENGI301" deviceset="FIDUCIAL" device=""/>
+<part name="FUD3" library="ENGI301" deviceset="FIDUCIAL" device=""/>
+<part name="FUD4" library="ENGI301" deviceset="FIDUCIAL" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7077,37 +7139,29 @@ Metric Code Size 5664</description>
 <attribute name="NAME" x="62.23" y="117.475" size="1.778" layer="95"/>
 <attribute name="VALUE" x="62.23" y="104.14" size="1.778" layer="96"/>
 </instance>
+<instance part="GND17" gate="1" x="220.98" y="236.22" smashed="yes" rot="R90">
+<attribute name="VALUE" x="223.52" y="233.68" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="GND18" gate="1" x="276.86" y="236.22" smashed="yes" rot="R90">
+<attribute name="VALUE" x="279.4" y="233.68" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="GND19" gate="1" x="332.74" y="236.22" smashed="yes" rot="R90">
+<attribute name="VALUE" x="335.28" y="233.68" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="MGT1" gate="G$1" x="238.76" y="111.76" smashed="yes">
+<attribute name="NAME" x="239.522" y="109.728" size="1.27" layer="95"/>
+</instance>
+<instance part="MGT2" gate="G$1" x="254" y="111.76" smashed="yes">
+<attribute name="NAME" x="254.762" y="109.728" size="1.27" layer="95"/>
+</instance>
+<instance part="FUD1" gate="G$1" x="302.26" y="114.3" smashed="yes"/>
+<instance part="FUD2" gate="G$1" x="302.26" y="93.98" smashed="yes"/>
+<instance part="FUD3" gate="G$1" x="320.04" y="93.98" smashed="yes"/>
+<instance part="FUD4" gate="G$1" x="320.04" y="114.3" smashed="yes"/>
 </instances>
 <busses>
 </busses>
 <nets>
-<net name="N$4" class="0">
-<segment>
-<pinref part="U$2" gate="G$1" pin="GND"/>
-<pinref part="C2" gate="G$1" pin="1"/>
-<wire x1="195.58" y1="236.22" x2="203.2" y2="236.22" width="0.1524" layer="91"/>
-<junction x="203.2" y="236.22"/>
-<wire x1="203.2" y1="236.22" x2="218.44" y2="236.22" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$7" class="0">
-<segment>
-<pinref part="U$3" gate="G$1" pin="GND"/>
-<pinref part="C3" gate="G$1" pin="1"/>
-<wire x1="251.46" y1="236.22" x2="259.08" y2="236.22" width="0.1524" layer="91"/>
-<junction x="259.08" y="236.22"/>
-<wire x1="259.08" y1="236.22" x2="274.32" y2="236.22" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$10" class="0">
-<segment>
-<pinref part="U$4" gate="G$1" pin="GND"/>
-<pinref part="C4" gate="G$1" pin="1"/>
-<wire x1="307.34" y1="236.22" x2="314.96" y2="236.22" width="0.1524" layer="91"/>
-<junction x="314.96" y="236.22"/>
-<wire x1="314.96" y1="236.22" x2="330.2" y2="236.22" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="VIN_5V" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="VCC"/>
@@ -7488,6 +7542,31 @@ Metric Code Size 5664</description>
 <wire x1="66.04" y1="137.16" x2="55.88" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="55.88" y1="137.16" x2="53.34" y2="137.16" width="0.1524" layer="91"/>
 <junction x="53.34" y="137.16"/>
+</segment>
+<segment>
+<pinref part="U$2" gate="G$1" pin="GND"/>
+<pinref part="C2" gate="G$1" pin="1"/>
+<wire x1="195.58" y1="236.22" x2="203.2" y2="236.22" width="0.1524" layer="91"/>
+<junction x="203.2" y="236.22"/>
+<wire x1="203.2" y1="236.22" x2="218.44" y2="236.22" width="0.1524" layer="91"/>
+<pinref part="GND17" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="U$3" gate="G$1" pin="GND"/>
+<pinref part="C3" gate="G$1" pin="1"/>
+<wire x1="251.46" y1="236.22" x2="259.08" y2="236.22" width="0.1524" layer="91"/>
+<junction x="259.08" y="236.22"/>
+<wire x1="259.08" y1="236.22" x2="274.32" y2="236.22" width="0.1524" layer="91"/>
+<pinref part="GND18" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="U$4" gate="G$1" pin="GND"/>
+<pinref part="C4" gate="G$1" pin="1"/>
+<wire x1="307.34" y1="236.22" x2="314.96" y2="236.22" width="0.1524" layer="91"/>
+<junction x="314.96" y="236.22"/>
+<wire x1="314.96" y1="236.22" x2="330.2" y2="236.22" width="0.1524" layer="91"/>
+<pinref part="GND19" gate="1" pin="GND"/>
+<junction x="330.2" y="236.22"/>
 </segment>
 </net>
 <net name="U6" class="0">
