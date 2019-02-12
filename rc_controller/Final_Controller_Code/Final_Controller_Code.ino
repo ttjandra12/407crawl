@@ -62,8 +62,8 @@ void setup() {
   pinMode(in8, OUTPUT);
 
   //Set the servos
-  servo1.attach(12);
-  servo2.write(90);
+  servo1.attach(11);
+  servo2.attach(12);
 }
 
 void loop() {
@@ -178,29 +178,51 @@ void loop() {
       digitalWrite(in8, HIGH);
   }
 
-  //Control of the first servo motor in the FPV camera
+  //Control of the first servo motor in the FPV camera (up and down)
   if (ch2 > 1700)
  {
-  servoPosition1 -= servoIncrement;
+  servoPosition1 += servoIncrement;
+  if (servoPosition1>180)
+  {
+    servoPosition1=180;
+  }
   servo1.write(servoPosition1);
  }
  
  if (ch2 < 1300)
  {
-  servoPosition1 += servoIncrement;
+  servoPosition1 -= servoIncrement;
+  
+  if (servoPosition1<0)
+  {
+    servoPosition1=0;
+  }
+  
   servo1.write(servoPosition1);
  }
 
- //Control of the second servo motor in the FPV camera
+ //Control of the second servo motor in the FPV camera (left and right)
   if (ch1 > 1700)
  {
-  servoPosition2 -= servoIncrement;
+  servoPosition2 += servoIncrement;
+  
+  if (servoPosition2>180)
+  {
+    servoPosition2=180;
+  }
+  
   servo2.write(servoPosition2);
  }
  
  if (ch1 < 1300)
  {
-  servoPosition2 += servoIncrement;
+  servoPosition2 -= servoIncrement;
+  
+  if (servoPosition2<0)
+  {
+    servoPosition2=0;
+  }
+  
   servo2.write(servoPosition2);
  }
 }
