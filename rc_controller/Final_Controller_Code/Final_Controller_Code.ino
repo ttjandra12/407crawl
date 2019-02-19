@@ -1,4 +1,4 @@
-#include <Servo.h>
+ #include <Servo.h>
 Servo servo1;
 Servo servo2;
 
@@ -38,6 +38,8 @@ int servoPosition2 = 90;
 int servoIncrement = 6;
 
 void setup() {
+  // initialize serial communication at 9600 bits per second:
+  Serial.begin(115200);
   
   // Set input pins
   pinMode(chA, INPUT);
@@ -102,14 +104,18 @@ void loop() {
   
     if (ch3>1300 && ch3<1700)
     {
-      analogWrite(enA, 0);
-      analogWrite(enB, 0);
-      analogWrite(enC, 0);
-      analogWrite(enD, 0);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, LOW);
+      digitalWrite(in5, LOW);
+      digitalWrite(in6, LOW);
+      digitalWrite(in7, LOW);
+      digitalWrite(in8, LOW);
     }
 
     if (ch3 >1700)
-    {
+    {  
       // turn on motor one, reverse
       analogWrite(enA, 200);
       digitalWrite(in1, LOW);
@@ -133,49 +139,49 @@ void loop() {
   }
 
   if (ch4<1300)
-  {
+  {    
     // turn on motor one, forward
-      analogWrite(enA, 200);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
+    analogWrite(enA, 200);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
       
-      // turn on motor two, reverse
-      analogWrite(enB, 200);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
+    // turn on motor two, reverse
+    analogWrite(enB, 200);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
       
-      // turn on motor three, reverse
-      analogWrite(enC, 200);
-      digitalWrite(in5, HIGH);
-      digitalWrite(in6, LOW);
+    // turn on motor three, reverse
+    analogWrite(enC, 200);
+    digitalWrite(in5, HIGH);
+    digitalWrite(in6, LOW);
       
-      // turn on motor four, forward
-      analogWrite(enD, 200);
-      digitalWrite(in7, HIGH);
-      digitalWrite(in8, LOW);
+    // turn on motor four, forward
+    analogWrite(enD, 200);
+    digitalWrite(in7, HIGH);
+    digitalWrite(in8, LOW);
   }
 
   if (ch4>1700)
   {
     // turn on motor one, reverse
-      analogWrite(enA, 200);
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
+    analogWrite(enA, 200);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
       
-      // turn on motor two, forward
-      analogWrite(enB, 200);
-      digitalWrite(in3, HIGH);
-      digitalWrite(in4, LOW);
+     // turn on motor two, forward
+     analogWrite(enB, 200);
+     digitalWrite(in3, HIGH);
+     digitalWrite(in4, LOW);
 
-      // turn on motor three, forward
-      analogWrite(enC, 200);
-      digitalWrite(in5, LOW);
-      digitalWrite(in6, HIGH);
+     // turn on motor three, forward
+     analogWrite(enC, 200);
+     digitalWrite(in5, LOW);
+     digitalWrite(in6, HIGH);
       
-      // turn on motor four, reverse
-      analogWrite(enD, 200);
-      digitalWrite(in7, LOW);
-      digitalWrite(in8, HIGH);
+     // turn on motor four, reverse
+     analogWrite(enD, 200);
+     digitalWrite(in7, LOW);
+     digitalWrite(in8, HIGH);
   }
 
   //Control of the first servo motor in the FPV camera (up and down)
@@ -225,4 +231,25 @@ void loop() {
   
   servo2.write(servoPosition2);
  }
+
+ /*/ch3 = pulseIn (chC,HIGH);
+  /*Serial.print ("Ch3:");
+  Serial.print (ch3);
+  Serial.print ("|"); 
+  
+  Serial.print ("in3:");
+  Serial.println(digitalRead(in3));
+  Serial.print ("|");
+  
+  Serial.print ("in4:");
+  Serial.println(digitalRead(in4));
+  Serial.print ("|");
+
+  delay (2000);
+
+  /*ch4 = pulseIn (chD,HIGH);
+  Serial.print ("Ch4:");
+  Serial.print (ch4);
+  Serial.print ("|"); */
+
 }
