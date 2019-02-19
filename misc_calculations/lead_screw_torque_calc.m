@@ -4,6 +4,7 @@
 %References:
 %   https://www.engineeringtoolbox.com/friction-coefficients-d_778.htmlhttps://www.amesweb.info/Screws/Tables/FrictionCoefficientsPowerLeadScrews.aspx
 %   http://www.ce.siue.edu/examples/Worked_examples_Internet_text-only/Data_files-Worked_Exs-Word_&_pdf/Friction_screws.pdf
+%   https://westportcorp.com/blogs/thread-plug-gages/internal-acme-thread-general-purpose-size-chart
 
 %Component Specifications:
 %   - Carbon Steel ACME Lead Screw, Right Hand, 1/4"-16 Thread Size
