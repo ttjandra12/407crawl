@@ -38,9 +38,6 @@ int servoPosition2 = 90;
 int servoIncrement = 6;
 
 void setup() {
-  // initialize serial communication at 9600 bits per second:
-  Serial.begin(115200);
-  
   // Set input pins
   pinMode(chA, INPUT);
   pinMode(chB,INPUT);
@@ -82,22 +79,22 @@ void loop() {
     if (ch3 <1300)
     {
       // turn on motor one
-      analogWrite(enA, 200);
+      analogWrite(enA, 120);
       digitalWrite(in1, HIGH);
       digitalWrite(in2, LOW);
       
       // turn on motor two
-      analogWrite(enB, 200);
+      analogWrite(enB, 120);
       digitalWrite(in3, HIGH);
       digitalWrite(in4, LOW);
       
       // turn on motor three
-      analogWrite(enC, 200);
+      analogWrite(enC, 120);
       digitalWrite(in5, HIGH);
       digitalWrite(in6, LOW);
       
       // turn on motor four
-      analogWrite(enD, 200);
+      analogWrite(enD, 120);
       digitalWrite(in7, LOW);
       digitalWrite(in8, HIGH);
     }
@@ -117,22 +114,22 @@ void loop() {
     if (ch3 >1700)
     {  
       // turn on motor one, reverse
-      analogWrite(enA, 200);
+      analogWrite(enA, 120);
       digitalWrite(in1, LOW);
       digitalWrite(in2, HIGH);
       
       // turn on motor two, reverse
-      analogWrite(enB, 200);
+      analogWrite(enB, 120);
       digitalWrite(in3, LOW);
       digitalWrite(in4, HIGH);
       
       // turn on motor three, reverse
-      analogWrite(enC, 200);
+      analogWrite(enC, 120);
       digitalWrite(in5, LOW);
       digitalWrite(in6, HIGH);
       
       // turn on motor four, reverse
-      analogWrite(enD, 200);
+      analogWrite(enD, 120);
       digitalWrite(in7, HIGH);
       digitalWrite(in8, LOW);
     }
@@ -141,22 +138,22 @@ void loop() {
   if (ch4<1300)
   {    
     // turn on motor one, forward
-    analogWrite(enA, 200);
+    analogWrite(enA, 120);
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
       
     // turn on motor two, reverse
-    analogWrite(enB, 200);
+    analogWrite(enB, 120);
     digitalWrite(in3, LOW);
     digitalWrite(in4, HIGH);
       
     // turn on motor three, reverse
-    analogWrite(enC, 200);
+    analogWrite(enC, 120);
     digitalWrite(in5, HIGH);
     digitalWrite(in6, LOW);
       
     // turn on motor four, forward
-    analogWrite(enD, 200);
+    analogWrite(enD, 120);
     digitalWrite(in7, HIGH);
     digitalWrite(in8, LOW);
   }
@@ -164,22 +161,22 @@ void loop() {
   if (ch4>1700)
   {
     // turn on motor one, reverse
-    analogWrite(enA, 200);
+    analogWrite(enA, 120);
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
       
      // turn on motor two, forward
-     analogWrite(enB, 200);
+     analogWrite(enB, 120);
      digitalWrite(in3, HIGH);
      digitalWrite(in4, LOW);
 
      // turn on motor three, forward
-     analogWrite(enC, 200);
+     analogWrite(enC, 120);
      digitalWrite(in5, LOW);
      digitalWrite(in6, HIGH);
       
      // turn on motor four, reverse
-     analogWrite(enD, 200);
+     analogWrite(enD, 120);
      digitalWrite(in7, LOW);
      digitalWrite(in8, HIGH);
   }
