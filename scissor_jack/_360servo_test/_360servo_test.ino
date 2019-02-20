@@ -40,8 +40,7 @@ void loop() {
       char targetAngle = Serial.read();  
     }
     while(abs(targetAngle - angle) > 4){       // Display until close to finish
-      print("targetAngle = %d, angle = %d\r", // Display target & measured
-      targetAngle, angle);             
+      print("targetAngle = %d, angle = %d\r",targetAngle, angle); // Display target & measured             
       pause(50);                              // ...every 50 ms
     }      
   }  
