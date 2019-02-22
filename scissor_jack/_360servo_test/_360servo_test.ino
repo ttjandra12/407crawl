@@ -6,8 +6,8 @@
  * 
  */
 
-#include "simpletools.h"
-#include "servo.h"
+//#include "simpletools.h"
+//#include "servo.h"
 
 int pinFeedback = 8;
 int pinControl = 9; 
