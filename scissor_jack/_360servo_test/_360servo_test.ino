@@ -6,17 +6,18 @@
  * 
  */
 
-//#include "simpletools.h"
-//#include "servo.h"
+#include "Servo.h"
 
-int pinFeedback = 8;
+Servo servo;
+
+int pinFeedback = A0;
 int pinControl = 9; 
 
 volatile int angle, targetAngle;        
 volatile int Kp = 1;                                // Proportional Gain
 
 void feedback360();
-void control360();                          
+void control360();   
 
 void setup() {
   // put your setup code here, to run once:
@@ -27,21 +28,25 @@ void setup() {
   pinMode(pinFeedback, INPUT);
   pinMode(pinControl, OUTPUT);
 
+  servo.attach(9);
+
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  cog_run(feedback360, 128);
-  cog_run(control360, 128);
-
+  feedback360();
+  control360();
+  
   while(1){
     if (Serial.available()){
-      println("Enter angle: ");
+      Serial.println("Enter angle: ");
       char targetAngle = Serial.read();  
     }
     while(abs(targetAngle - angle) > 4){       // Display until close to finish
-      print("targetAngle = %d, angle = %d\r",targetAngle, angle); // Display target & measured             
-      pause(50);                              // ...every 50 ms
+      Serial.print("targetAngle = %d, angle = %d\r");
+      Serial.print(targetAngle);
+      Serial.println(angle);                  // Display target & measured             
+      delay(50);                              // ...every 50 ms
     }      
   }  
 }
@@ -60,8 +65,8 @@ void feedback360(){
   // duty cycle calculations.
   int dc, theta, thetaP, tHigh, tLow;
 
-  tLow = pulse_in(pinFeedback, 0);          // Measure low time
-  tHigh = pulse_in(pinFeedback, 1);         // Measure high time
+  tLow = pulseIn(pinFeedback, LOW);          // Measure low time
+  tHigh = pulseIn(pinFeedback, HIGH);         // Measure high time
 
   // Calcualte initial duty cycle and angle.
   dc = (dutyScale * tHigh) / (tHigh + tLow);
@@ -75,8 +80,8 @@ void feedback360(){
     int tCycle = 0;                           // Clear cycle time
     while(1)                                  // Keep checking
     {
-      tHigh = pulse_in(pinFeedback, 1);       // Measure time high
-      tLow = pulse_in(pinFeedback, 0);        // Measure time low
+      tHigh = pulseIn(pinFeedback, LOW);       // Measure time high
+      tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
       tCycle = tHigh + tLow;
       if((tCycle > 1000) && (tCycle < 1200)){  // If cycle time valid 
         break;                                 // break from loop
@@ -113,13 +118,12 @@ void feedback360(){
     
     thetaP = theta;                           // Theta previous for next rep
 }
+}
 
 // Most rudimentary control system example, 
 // just proportional.  This could be done
 // in the same cog as the angle mesurement.                                            
-void control360()                             // Cog for control system
-{
-  servo_speed(pinControl, 0);                 // Start servo control cog
+void control360() {                            // Cog for control system
   
   int errorAngle, output, offset;             // Control system variables
   
@@ -128,12 +132,12 @@ void control360()                             // Cog for control system
     errorAngle = targetAngle - angle;         // Calculate error
     output = errorAngle * Kp;                 // Calculate proportional 
     if(output > 200){
-      output = 200;            // Clamp output
+      output = 1380;            // move screw clockwise at half of full speed
     }
     if(output < -200){
-      output = -200;
+      output = 1620;           // move screw counterclockwise at half of full speed
     }
-    if(errorAngle > 0){                        // Add offset
+    if(errorAngle > 0){                        // Add offset to reduce oscillations 
       offset = 30;
     }
     else if(errorAngle < 0){
@@ -143,7 +147,8 @@ void control360()                             // Cog for control system
       offset = 0;
     }     
     
-    servo_speed(pinControl, output + offset); // Set output
-    pause(20);                                // Repeat after 20 ms
+    servo.writeMicroseconds(output + offset); // Set output
+    delay(20);                                // Repeat after 20 ms
   }    
+
 }  
