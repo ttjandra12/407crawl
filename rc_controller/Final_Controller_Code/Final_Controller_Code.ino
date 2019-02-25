@@ -1,6 +1,12 @@
- #include <Servo.h>
+#include <VL53L0X.h>
+#include <Wire.h>
+#include <Servo.h>
+
+
 Servo servo1;
 Servo servo2;
+
+VL53L0X ToF_sensor;
 
 // Define Variables:
 const int chA=30;  //Constant variables relating to pin locations
@@ -37,6 +43,10 @@ int servoPosition1 = 90;
 int servoPosition2 = 90;
 int servoIncrement = 6;
 
+int ch5_change = 600;
+int ch5_PrevRead = 1200;
+int ch5_CurrRead = 0;
+
 void setup() {
   // Set input pins
   pinMode(chA, INPUT);
@@ -63,15 +73,24 @@ void setup() {
   //Set the servos
   servo1.attach(11);
   servo2.attach(12);
+
+  #define HIGH_ACCURACY
+  Serial.begin(9600);
+  Wire.begin();
+
+  ToF_sensor.init();
+  ToF_sensor.setMeasurementTimingBudget(20000);
+  
+
 }
 
 void loop() {
- ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
- ch2 = pulseIn (chB,HIGH);  //Read and store channel 2
- ch3 = pulseIn (chC,HIGH);  //Read and store channel 3
- ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
- ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
- ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
+  ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
+  ch2 = pulseIn (chB,HIGH);  //Read and store channel 2
+  ch3 = pulseIn (chC,HIGH);  //Read and store channel 3
+  ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
+  ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
+  ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
 
   //Motor Control
   if (ch4>1300 && ch4<1700)
@@ -183,70 +202,65 @@ void loop() {
 
   //Control of the first servo motor in the FPV camera (up and down)
   if (ch2 > 1700)
- {
-  servoPosition1 += servoIncrement;
-  if (servoPosition1>180)
   {
-    servoPosition1=180;
+    servoPosition1 += servoIncrement;
+    if (servoPosition1>180)
+    {
+      servoPosition1=180;
+    }
+    servo1.write(servoPosition1);
   }
-  servo1.write(servoPosition1);
- }
  
- if (ch2 < 1300)
- {
-  servoPosition1 -= servoIncrement;
-  
-  if (servoPosition1<0)
+  if (ch2 < 1300)
   {
-    servoPosition1=0;
-  }
+    servoPosition1 -= servoIncrement;
   
-  servo1.write(servoPosition1);
- }
+    if (servoPosition1<0)
+    {
+      servoPosition1=0;
+    }
+  
+    servo1.write(servoPosition1);
+  }
 
  //Control of the second servo motor in the FPV camera (left and right)
   if (ch1 > 1700)
- {
-  servoPosition2 += servoIncrement;
-  
-  if (servoPosition2>180)
   {
-    servoPosition2=180;
-  }
+    servoPosition2 += servoIncrement;
   
-  servo2.write(servoPosition2);
- }
+    if (servoPosition2>180)
+    {
+      servoPosition2=180;
+    }
+  
+    servo2.write(servoPosition2);
+  }
  
- if (ch1 < 1300)
- {
-  servoPosition2 -= servoIncrement;
-  
-  if (servoPosition2<0)
+  if (ch1 < 1300)
   {
-    servoPosition2=0;
-  }
+    servoPosition2 -= servoIncrement;
+  
+    if (servoPosition2<0)
+    {
+      servoPosition2=0;
+    }
   
   servo2.write(servoPosition2);
- }
-
- /*/ch3 = pulseIn (chC,HIGH);
-  /*Serial.print ("Ch3:");
-  Serial.print (ch3);
-  Serial.print ("|"); 
+  }
   
-  Serial.print ("in3:");
-  Serial.println(digitalRead(in3));
-  Serial.print ("|");
+  //Read the CH5 input
+  ch5_CurrRead = ch5;
+
+  int delta_ch5= abs(ch5_CurrRead-ch5_PrevRead);
+    
+  if(delta_ch5 > ch5_change ) //if the nob is turned past a certain point, activate ToF sensor.
+  {
+  //Activate the ToF and record the value as well as the NPU
+ 
+  Serial.print("Distance (mm): "); 
+  Serial.println(ToF_sensor.readRangeSingleMillimeters());
   
-  Serial.print ("in4:");
-  Serial.println(digitalRead(in4));
-  Serial.print ("|");
-
-  delay (2000);
-
-  /*ch4 = pulseIn (chD,HIGH);
-  Serial.print ("Ch4:");
-  Serial.print (ch4);
-  Serial.print ("|"); */
-
+  ch5_PrevRead = ch5_CurrRead;
+  }
+ 
 }
