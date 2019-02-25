@@ -10,14 +10,13 @@
 
 Servo servo;
 
-int pinFeedback = A0;
+int pinFeedback = 6;
 int pinControl = 9; 
 
-volatile int angle, targetAngle;        
+volatile float angle, targetAngle;        
 volatile int Kp = 1;                                // Proportional Gain
 
 void feedback360();
-void control360();   
 
 void setup() {
   // put your setup code here, to run once:
@@ -33,61 +32,59 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  feedback360();
-  control360();
   
-  while(1){
-    if (Serial.available()){
-      Serial.println("Enter angle: ");
-      char targetAngle = Serial.read();  
-    }
-    while(abs(targetAngle - angle) > 4){       // Display until close to finish
-      Serial.print("targetAngle = %d, angle = %d\r");
-      Serial.print(targetAngle);
-      Serial.println(angle);                  // Display target & measured             
-      delay(50);                              // ...every 50 ms
-    }      
-  }  
+  servo.writeMicroseconds(1380);            // Move servo in clockwise direction
+  feedback360();                            // Run feedback360 function to calculate angle 
+
 }
 
 void feedback360(){
   int unitsFC = 360;                        // Units in a full circle
-  int dutyScale = 1000;                     // Scale duty cycle to 1/1000ths
-  int dcMin = 29;                           // Minimum duty cycle, 2.9%
-  int dcMax = 971;                          // Maximum duty cycle, 97.1%
+  int dutyScale = 100;                      // Scale duty cycle to 1/1000ths
+  float dcMin = 2.9;                        // Minimum duty cycle, 2.9%
+  float dcMax = 97.1;                       // Maximum duty cycle, 97.1%
   int q2min = unitsFC/4;                    // For checking if in 1st quadrant
   int q3max = q2min*3;                      // For checking if in 4th quadrant
-  int turns = 0;
+  int turns = 0;  
   
   // dc is duty cycle, theta is 0 to 359 angle, thetaP is theta from previous
   // loop repetition, tHigh and tLow are the high and low signal times for 
   // duty cycle calculations.
-  int dc, theta, thetaP, tHigh, tLow;
+  float dc, tHigh, tLow, tCycle, theta, thetaP;                         
 
   tLow = pulseIn(pinFeedback, LOW);          // Measure low time
-  tHigh = pulseIn(pinFeedback, HIGH);         // Measure high time
-
+  tHigh = pulseIn(pinFeedback, HIGH);        // Measure high time
+  tCycle = tLow + tHigh;
+  
   // Calcualte initial duty cycle and angle.
-  dc = (dutyScale * tHigh) / (tHigh + tLow);
+  dc = (dutyScale * tHigh) / (tCycle);
   theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);
   thetaP = theta;
 
+  Serial.print("Init tLow: ");
+  Serial.print(tLow);
+  Serial.print("|| Init tHigh: ");
+  Serial.print(tHigh);
+  Serial.print("|| Init dc: ");
+  Serial.print(dc);
+  Serial.print("|| Init theta: ");
+  Serial.println(theta);  
+  
   while(1){
     // Measure high and low times, making sure to only take valid cycle
     // times (a high and a low on opposite sides of the 0/359 boundary
     // will not be valid.
-    int tCycle = 0;                           // Clear cycle time
-    while(1)                                  // Keep checking
+    int tCycle = 0;                             // Clear cycle time
+    while(1)                                    // Keep checking
     {
-      tHigh = pulseIn(pinFeedback, LOW);       // Measure time high
+      tHigh = pulseIn(pinFeedback, LOW);        // Measure time high
       tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
       tCycle = tHigh + tLow;
-      if((tCycle > 1000) && (tCycle < 1200)){  // If cycle time valid 
-        break;                                 // break from loop
+      if((tCycle > 1000) && (tCycle < 1200)){   // If cycle time valid 
+        break;                                  // break from loop
       }
     }      
-    dc = (dutyScale * tHigh) / tCycle;        // Calculate duty cycle
+    dc = (dutyScale * tHigh) / tCycle;          // Calculate duty cycle
     
     // This gives a theta increasing in the counterclockwise direction.
     theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC)/(dcMax - dcMin + 1);          // Calculate angle
@@ -116,39 +113,18 @@ void feedback360(){
       angle = ((turns + 1) * unitsFC) - (unitsFC - theta);
     }
     
-    thetaP = theta;                           // Theta previous for next rep
+    thetaP = theta;                            // Theta previous for next rep
+    Serial.print("tLow: ");
+    Serial.print(tLow);
+    Serial.print("|| tHigh: ");
+    Serial.print(tHigh);
+    Serial.print("|| dc: ");
+    Serial.print(dc);
+    Serial.print("|| theta: ");
+    Serial.print(theta);  
+    Serial.print("|| angle: ");
+    Serial.println(angle);  
 }
 }
 
-// Most rudimentary control system example, 
-// just proportional.  This could be done
-// in the same cog as the angle mesurement.                                            
-void control360() {                            // Cog for control system
-  
-  int errorAngle, output, offset;             // Control system variables
-  
-  while(1)                                    // Main loop for this cog
-  {
-    errorAngle = targetAngle - angle;         // Calculate error
-    output = errorAngle * Kp;                 // Calculate proportional 
-    if(output > 200){
-      output = 1380;            // move screw clockwise at half of full speed
-    }
-    if(output < -200){
-      output = 1620;           // move screw counterclockwise at half of full speed
-    }
-    if(errorAngle > 0){                        // Add offset to reduce oscillations 
-      offset = 30;
-    }
-    else if(errorAngle < 0){
-      offset = -30;
-    }
-    else{
-      offset = 0;
-    }     
-    
-    servo.writeMicroseconds(output + offset); // Set output
-    delay(20);                                // Repeat after 20 ms
-  }    
 
-}  
