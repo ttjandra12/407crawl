@@ -1,6 +1,12 @@
+#include <VL53L0X.h>
+#include <Wire.h>
 #include <Servo.h>
+
+
 Servo servo1;
 Servo servo2;
+
+VL53L0X ToF_sensor;
 
 // Define Variables:
 const int chA=30;  //Constant variables relating to pin locations
@@ -37,8 +43,11 @@ int servoPosition1 = 90;
 int servoPosition2 = 90;
 int servoIncrement = 6;
 
+int ch5_change = 600;
+int ch5_PrevRead = 1200;
+int ch5_CurrRead = 0;
+
 void setup() {
-  
   // Set input pins
   pinMode(chA, INPUT);
   pinMode(chB,INPUT);
@@ -64,15 +73,24 @@ void setup() {
   //Set the servos
   servo1.attach(11);
   servo2.attach(12);
+
+  #define HIGH_ACCURACY
+  Serial.begin(9600);
+  Wire.begin();
+
+  ToF_sensor.init();
+  ToF_sensor.setMeasurementTimingBudget(20000);
+  
+
 }
 
 void loop() {
- ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
- ch2 = pulseIn (chB,HIGH);  //Read and store channel 2
- ch3 = pulseIn (chC,HIGH);  //Read and store channel 3
- ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
- ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
- ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
+  ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
+  ch2 = pulseIn (chB,HIGH);  //Read and store channel 2
+  ch3 = pulseIn (chC,HIGH);  //Read and store channel 3
+  ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
+  ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
+  ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
 
   //Motor Control
   if (ch4>1300 && ch4<1700)
@@ -80,149 +98,169 @@ void loop() {
     if (ch3 <1300)
     {
       // turn on motor one
-      analogWrite(enA, 200);
+      analogWrite(enA, 120);
       digitalWrite(in1, HIGH);
       digitalWrite(in2, LOW);
       
       // turn on motor two
-      analogWrite(enB, 200);
+      analogWrite(enB, 120);
       digitalWrite(in3, HIGH);
       digitalWrite(in4, LOW);
       
       // turn on motor three
-      analogWrite(enC, 200);
+      analogWrite(enC, 120);
       digitalWrite(in5, HIGH);
       digitalWrite(in6, LOW);
       
       // turn on motor four
-      analogWrite(enD, 200);
+      analogWrite(enD, 120);
       digitalWrite(in7, LOW);
       digitalWrite(in8, HIGH);
     }
   
     if (ch3>1300 && ch3<1700)
     {
-      analogWrite(enA, 0);
-      analogWrite(enB, 0);
-      analogWrite(enC, 0);
-      analogWrite(enD, 0);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, LOW);
+      digitalWrite(in5, LOW);
+      digitalWrite(in6, LOW);
+      digitalWrite(in7, LOW);
+      digitalWrite(in8, LOW);
     }
 
     if (ch3 >1700)
-    {
+    {  
       // turn on motor one, reverse
-      analogWrite(enA, 200);
+      analogWrite(enA, 120);
       digitalWrite(in1, LOW);
       digitalWrite(in2, HIGH);
       
       // turn on motor two, reverse
-      analogWrite(enB, 200);
+      analogWrite(enB, 120);
       digitalWrite(in3, LOW);
       digitalWrite(in4, HIGH);
       
       // turn on motor three, reverse
-      analogWrite(enC, 200);
+      analogWrite(enC, 120);
       digitalWrite(in5, LOW);
       digitalWrite(in6, HIGH);
       
       // turn on motor four, reverse
-      analogWrite(enD, 200);
+      analogWrite(enD, 120);
       digitalWrite(in7, HIGH);
       digitalWrite(in8, LOW);
     }
   }
 
   if (ch4<1300)
-  {
+  {    
     // turn on motor one, forward
-      analogWrite(enA, 200);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
+    analogWrite(enA, 120);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
       
-      // turn on motor two, reverse
-      analogWrite(enB, 200);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
+    // turn on motor two, reverse
+    analogWrite(enB, 120);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
       
-      // turn on motor three, reverse
-      analogWrite(enC, 200);
-      digitalWrite(in5, HIGH);
-      digitalWrite(in6, LOW);
+    // turn on motor three, reverse
+    analogWrite(enC, 120);
+    digitalWrite(in5, HIGH);
+    digitalWrite(in6, LOW);
       
-      // turn on motor four, forward
-      analogWrite(enD, 200);
-      digitalWrite(in7, HIGH);
-      digitalWrite(in8, LOW);
+    // turn on motor four, forward
+    analogWrite(enD, 120);
+    digitalWrite(in7, HIGH);
+    digitalWrite(in8, LOW);
   }
 
   if (ch4>1700)
   {
     // turn on motor one, reverse
-      analogWrite(enA, 200);
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
+    analogWrite(enA, 120);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
       
-      // turn on motor two, forward
-      analogWrite(enB, 200);
-      digitalWrite(in3, HIGH);
-      digitalWrite(in4, LOW);
+     // turn on motor two, forward
+     analogWrite(enB, 120);
+     digitalWrite(in3, HIGH);
+     digitalWrite(in4, LOW);
 
-      // turn on motor three, forward
-      analogWrite(enC, 200);
-      digitalWrite(in5, LOW);
-      digitalWrite(in6, HIGH);
+     // turn on motor three, forward
+     analogWrite(enC, 120);
+     digitalWrite(in5, LOW);
+     digitalWrite(in6, HIGH);
       
-      // turn on motor four, reverse
-      analogWrite(enD, 200);
-      digitalWrite(in7, LOW);
-      digitalWrite(in8, HIGH);
+     // turn on motor four, reverse
+     analogWrite(enD, 120);
+     digitalWrite(in7, LOW);
+     digitalWrite(in8, HIGH);
   }
 
   //Control of the first servo motor in the FPV camera (up and down)
   if (ch2 > 1700)
- {
-  servoPosition1 += servoIncrement;
-  if (servoPosition1>180)
   {
-    servoPosition1=180;
+    servoPosition1 += servoIncrement;
+    if (servoPosition1>180)
+    {
+      servoPosition1=180;
+    }
+    servo1.write(servoPosition1);
   }
-  servo1.write(servoPosition1);
- }
  
- if (ch2 < 1300)
- {
-  servoPosition1 -= servoIncrement;
-  
-  if (servoPosition1<0)
+  if (ch2 < 1300)
   {
-    servoPosition1=0;
-  }
+    servoPosition1 -= servoIncrement;
   
-  servo1.write(servoPosition1);
- }
+    if (servoPosition1<0)
+    {
+      servoPosition1=0;
+    }
+  
+    servo1.write(servoPosition1);
+  }
 
  //Control of the second servo motor in the FPV camera (left and right)
   if (ch1 > 1700)
- {
-  servoPosition2 += servoIncrement;
-  
-  if (servoPosition2>180)
   {
-    servoPosition2=180;
-  }
+    servoPosition2 += servoIncrement;
   
-  servo2.write(servoPosition2);
- }
+    if (servoPosition2>180)
+    {
+      servoPosition2=180;
+    }
+  
+    servo2.write(servoPosition2);
+  }
  
- if (ch1 < 1300)
- {
-  servoPosition2 -= servoIncrement;
-  
-  if (servoPosition2<0)
+  if (ch1 < 1300)
   {
-    servoPosition2=0;
-  }
+    servoPosition2 -= servoIncrement;
+  
+    if (servoPosition2<0)
+    {
+      servoPosition2=0;
+    }
   
   servo2.write(servoPosition2);
- }
+  }
+  
+  //Read the CH5 input
+  ch5_CurrRead = ch5;
+
+  int delta_ch5= abs(ch5_CurrRead-ch5_PrevRead);
+    
+  if(delta_ch5 > ch5_change ) //if the nob is turned past a certain point, activate ToF sensor.
+  {
+  //Activate the ToF and record the value as well as the NPU
+ 
+  Serial.print("Distance (mm): "); 
+  Serial.println(ToF_sensor.readRangeSingleMillimeters());
+  
+  ch5_PrevRead = ch5_CurrRead;
+  }
+ 
 }
