@@ -20,12 +20,11 @@ float angle;
 volatile int Kp = 1;                                // Proportional Gain
 int turns = 0;  
 
-int buttonState = 0;
-volatile byte buttonPressed; 
+volatile boolean buttonPressed = 0; 
 void feedback360();
 void pin_ISR();
 
-void pin_ISR(){                         // Interrupt function 
+void pin_ISR(){                         // Interrupt Service Routine
   buttonPressed = true; 
 }
 
@@ -47,10 +46,15 @@ void setup() {
 
 void loop() {
 
-  servo.writeMicroseconds(1380);
+  servo.writeMicroseconds(1380);          // Servo turns in clockwise direction at half speed
   feedback360();
-  
+  Serial.println("Interrupt Triggered");
+  buttonPressed = false;                  // Redundant but needed to prevent interrupt from running twice (issue more debugging here)
+  while(1) {
+    servo.writeMicroseconds(1500);        // Stops servo indefinitely
+  }
 }
+
 
 void feedback360(){
   
@@ -83,15 +87,13 @@ void feedback360(){
   Serial.print(dc);
   Serial.print("|| Init theta: ");
   Serial.println(theta);  
-
-  buttonState = digitalRead(pinButton);
   
-  while(buttonState == LOW){
+  while(1){
     // Measure high and low times, making sure to only take valid cycle
     // times (a high and a low on opposite sides of the 0/359 boundary
     // will not be valid.
     
-    while(buttonState == LOW)                                    // Keep checking
+    while(1)                                    // Keep checking
     {
       tHigh = pulseIn(pinFeedback, LOW);        // Measure time high
       tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
@@ -133,12 +135,13 @@ void feedback360(){
     
     thetaP = theta;                           // Theta previous for next rep
  
-    if (buttonPressed) {                      // Display angle in serial monitor if button presed 
+    if (buttonPressed) {                      // Display angle in serial monitor if interrupt is triggered 
       Serial.print("Angle: ");
       Serial.println(angle);
-      servo.writeMicroseconds(1500);          // Stop the servo 
       buttonPressed = false;
-      delay(2000);
+      servo.writeMicroseconds(1500);          // Stop the servo 
+      delay(1000);
+      break;
     }
   }
 }
