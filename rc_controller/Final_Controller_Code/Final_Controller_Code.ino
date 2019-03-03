@@ -3,7 +3,7 @@
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
-//#include <Adafruit_Sensor.h>
+#include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
