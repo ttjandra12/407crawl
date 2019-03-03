@@ -1,11 +1,11 @@
-#include <VL53L0X.h>
-#include <Wire.h>
+#include "Adafruit_VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
+#include <Wire.h>               // Libraries already included as default in Arduino              
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
-//#include <Adafruit_Sensor.h>
-//#include <Adafruit_BNO055.h>
-//#include <utility/imumaths.h>
+#include <Adafruit_Sensor.h>    // Taken from "Adafruit_Unified_Sensor" library
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>   // Included in BNO055 Library under "utility" folder
 
 
 Servo servo1;
