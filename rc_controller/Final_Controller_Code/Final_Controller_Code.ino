@@ -1,4 +1,4 @@
-#include "Adafruit_VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
+#include "VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
 #include <Wire.h>               // Libraries already included as default in Arduino              
 #include <Servo.h>
 #include <SPI.h>
