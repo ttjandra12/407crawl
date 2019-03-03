@@ -78,7 +78,7 @@ void loop() {
   if(delta_ch6 > ch6_change ) //if the nob is turned past a certain point, start moving the scissor jack.
   {
 
-  servo.writeMicroseconds(1450);
+  servo.writeMicroseconds(1440);
   feedback360();
   buttonPressed = false;
 
@@ -166,9 +166,9 @@ void feedback360(){
     }
 
     if (angle < lower_limit) {
-      servo.writeMicroseconds(1450);          // Make the servo go forward 
+      servo.writeMicroseconds(1440);          // Make the servo go forward 
     }
- 
+
     if (buttonPressed) {                      // Display angle in serial monitor if button presed 
       servo.writeMicroseconds(1500);          // Stop the servo
       Serial.print("Angle: ");
