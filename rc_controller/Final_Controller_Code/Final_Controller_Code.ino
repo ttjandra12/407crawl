@@ -337,7 +337,7 @@ void loop() {
     }
 
     //opening file on SD card and writing data string onto it
-    myFile = SD.open("TEST1.csv", FILE_WRITE);
+    myFile = SD.open("TEST2.csv", FILE_WRITE);
     if (myFile){
       myFile.println(dataString);
       myFile.close();
