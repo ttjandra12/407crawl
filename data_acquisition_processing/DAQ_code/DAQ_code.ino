@@ -124,7 +124,8 @@ void loop() {
       myFile.close();
       Serial.println("complete");
       delay(1000);
-    } else {
+    } 
+    else {
       Serial.println("error opening test1.csv");
     }
   }
