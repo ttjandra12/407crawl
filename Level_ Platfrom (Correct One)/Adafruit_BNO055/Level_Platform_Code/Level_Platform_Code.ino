@@ -66,7 +66,7 @@ void setup(void)
 
   Serial.println("Calibration status values: 0=uncalibrated, 3=fully calibrated");
 
-  levelx = 93;
+  levelx = 90;
   levely = 99;
   
   xservo.attach(8);
@@ -100,7 +100,7 @@ void loop(void)
 
 // yservo 
 if (mpuy < -2 && mpuy >=-90) {
-  if (mpuy == 0 || mpuy == -1){
+  if (mpuy == -3){
     return;
   }
   else{
@@ -113,17 +113,21 @@ if (mpuy < -2 && mpuy >=-90) {
 
 
 if (mpuy <=90 && mpuy > -2){
+  if (mpuy ==0 || mpuy ==-1 || mpuy ==1){
+    return;
+  }
+  else{
 
     levely = levely - 1;
     yservo.write(levely);
-
+  }
   Serial.print("MPU-Y =");
   Serial.println(mpuy);
 }
 
 //xservo
 if (mpux > -180 && mpux <= - 90) {
-  if (mpux == -180 || mpux == -179){
+  if (mpux == -180 || mpux == -179 || mpux == -178){
     return;
   }
   else {
