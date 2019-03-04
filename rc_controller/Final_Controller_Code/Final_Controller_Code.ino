@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 #include "VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
-#include <Wire.h>               // Libraries already included as default in Arduino              
-=======
+#include <Wire.h>               // Libraries already included as default in Arduino              =======
 #include <VL53L0X.h>
 #include <Wire.h>
->>>>>>> 1807416ae32699ef23881b65540f716678ef2ea8
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
@@ -75,14 +72,19 @@ int turns = 0;
 int upper_limit = 1000;
 int lower_limit = 0;
 
-int buttonState = 0;
-volatile byte buttonPressed; 
+
+int trigger = 0;
 void feedback360();
 void pin_ISR();
 
 void pin_ISR(){                         // Interrupt function 
-  buttonPressed = true; 
+  trigger = 1; 
 }
+
+const int selectPins[3] = {36, 37, 38}; // S0~2, S1~3, S2~4
+const int Y1Input = 39; // Connect output Y1 to 5
+const int Y2Input = 40; // Connect output Y2 to 6 
+int trigger = 0;
 
 void setup() {
   // Set input pins
@@ -125,8 +127,16 @@ void setup() {
 
   ToF_sensor.init();
   ToF_sensor.setMeasurementTimingBudget(20000);
-  
 
+  // Set up the select pins from the sensor carousel as outputs:
+  for (int i=0; i<3; i++)
+  {
+    pinMode(selectPins[i], OUTPUT);
+    digitalWrite(selectPins[i], HIGH);
+  }
+  pinMode(Y1Input, INPUT); // Set up Y1 as an input
+  pinMode(Y2Input, INPUT); // Set up Y2 as an input
+  
 }
 
 void loop() {
@@ -387,12 +397,26 @@ void feedback360(){
 
   buttonState = digitalRead(pinButton);
   
-  while(buttonState == LOW){
+  while(1){
     // Measure high and low times, making sure to only take valid cycle
     // times (a high and a low on opposite sides of the 0/359 boundary
     // will not be valid.
-    while(buttonState == LOW)                                    // Keep checking
+    while(1)                                    // Keep checking
     {
+      
+      // Loop through all eight pins from the carousel.
+      for (byte pin=0; pin<=7; pin++)
+      {
+        selectMuxPin(pin); // Select one at a time
+        int inputY1Value = digitalRead(39); // and read Y1
+        int inputY2Value = digitalRead(40); // and read Y2
+
+        if (inputY1Value == HIGH || inputY2Value == HIGH){
+          trigger= 1;
+        }
+  
+      }
+      
       tHigh = pulseIn(pinFeedback, LOW);        // Measure time high
       tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
       tCycle = tHigh + tLow;
@@ -441,11 +465,9 @@ void feedback360(){
 cont_servo.writeMicroseconds(1440);          // Make the servo go forward 
     }
  
-    if (buttonPressed) {                      // Display angle in serial monitor if button presed 
+    if (trigger) {                      // Display angle in serial monitor if button presed 
       cont_servo.writeMicroseconds(1500);          // Stop the servo
-      //Serial.print("Angle: ");
-      //Serial.println(angle); 
-      buttonPressed = false;
+      trigger = 0;
       delay(1000);
       break;
     }
@@ -528,6 +550,19 @@ void return_func(){
       cont_servo.writeMicroseconds(1500);          // Make the servo go forward 
       break;
     }
+  }
+}
+
+// The selectMuxPin function sets the S0, S1, and S2 pins
+// accordingly, given a pin from 0-7.
+void selectMuxPin(byte pin)
+{
+  for (int i=0; i<3; i++)
+  {
+    if (pin & (1<<i))
+      digitalWrite(selectPins[i], HIGH);
+    else
+      digitalWrite(selectPins[i], LOW);
   }
 }
 
