@@ -2,12 +2,12 @@
 Servo servo;
 
 // Define Variables:
-const int chA=7;  //Constant variables relating to pin locations
-const int chB=2;
-const int chC=3;
-const int chD=4;
-const int chE=5;
-const int chF=6;
+const int chA=30;  //Constant variables relating to pin locations
+const int chB=31;
+const int chC=32;
+const int chD=33;
+const int chE=34;
+const int chF=35;
 
 int ch1;  //Varibles to store and display the values of each channel
 int ch2;
@@ -22,7 +22,7 @@ int servoIncrement = 6;
 
 void setup() {
  // initialize serial communication at 9600 bits per second:
- Serial.begin(115200);
+ Serial.begin(9600);
 
  // Set input pins
  pinMode(chA, INPUT);
@@ -59,7 +59,7 @@ void loop() {
  Serial.print ("Ch2:");
  Serial.print (ch2);     
  Serial.print ("|");
- Serial.print(servoPosition);
+ Serial.println(servoPosition);
 
 
 }
