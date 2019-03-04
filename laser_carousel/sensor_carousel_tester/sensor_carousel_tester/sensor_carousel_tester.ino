@@ -52,7 +52,7 @@ void setup()
 
 void loop() 
 {
-  // Loop through all eight pins.
+  // Loop through all eight pins
   for (byte pin=0; pin<=7; pin++)
   {
     selectMuxPin(pin); // Select one at a time
