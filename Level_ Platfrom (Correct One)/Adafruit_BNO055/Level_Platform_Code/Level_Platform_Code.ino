@@ -13,11 +13,6 @@ double levely;
 double mpux;
 double mpuy;
 
-double angx;
-double angy;
-
-double moveanglex;
-double moveangley;
 
 /* This driver reads raw data from the BNO055
 
@@ -66,16 +61,16 @@ void setup(void)
 
   Serial.println("Calibration status values: 0=uncalibrated, 3=fully calibrated");
 
-  levelx = 90;
-  levely = 99;
+  levelx = 90; // initial x level
+  levely = 99; //initial y level 
   
-  xservo.attach(8);
-  yservo.attach(9);
+  xservo.attach(10); //attach to the correct pin
+  yservo.attach(11); //attach to the correct pin
   
   
-  xservo.write(levelx);
-  Serial.print("Angle Set Up X");
-  yservo.write(levely);
+  xservo.write(levelx); //moves x servo
+//  Serial.print("Angle Set Up X");
+  yservo.write(levely); //moves y servo
 
   delay(5000);
 }
@@ -93,80 +88,69 @@ void loop(void)
 
   /* Display the floating point data */
 
-
-
-  mpux = round(euler.z());
-  mpuy = round(euler.y());
+  mpux = round(euler.z()); //rounds the mpu values to move the motor and reduce noise for if statement
+  mpuy = round(euler.y()); //rounds the mpu values to move the motor and reduce noise for if statement
 
 // yservo 
 if (mpuy < -2 && mpuy >=-90) {
   if (mpuy == -3){
-    return;
+    return;  //if it is already level, it ends the code
   }
   else{
     levely = levely + 1;
-    yservo.write(levely);
+    yservo.write(levely); //moves the y motor to one side until it is level
   }
-  Serial.print("MPU-Y =");
-  Serial.println(mpuy);
+//  Serial.print("MPU-Y =");
+//  Serial.println(mpuy);
 }
 
 
 if (mpuy <=90 && mpuy > -2){
   if (mpuy ==0 || mpuy ==-1 || mpuy ==1){
-    return;
+    return; //if level already, moves out
   }
   else{
 
     levely = levely - 1;
-    yservo.write(levely);
+    yservo.write(levely); // moves the y motor to one side until it is level
   }
-  Serial.print("MPU-Y =");
-  Serial.println(mpuy);
+//  Serial.print("MPU-Y =");
+//  Serial.println(mpuy);
 }
 
 //xservo
 if (mpux > -180 && mpux <= - 90) {
   if (mpux == -180 || mpux == -179 || mpux == -178){
-    return;
+    return; //if x side is level, moves out of the if statement
   }
   else {
     levelx = levelx - 1;
-    xservo.write(levelx);
+    xservo.write(levelx); //moves the x motor to one side until it is level
   }
-  Serial.print("MPU-X =");
-  Serial.println(mpux);
+//  Serial.print("MPU-X =");
+//  Serial.println(mpux);
 }
 
 if (mpux >= 90 && mpux < 180){
   if (mpux == 180 || mpux == 179){
-    return;
+    return; // if x side is level, moves out of the if statement 
   }
   else {
     levelx = levelx + 1;
-    xservo.write(levelx);
+    xservo.write(levelx); //moves the x motor to one side until it is level
   }
-  Serial.print("MPU-X =");
-  Serial.println(mpux);
-}
-  Serial.print("MPU-X =");
-  Serial.println(mpux);
 
-Serial.println("LEVEL!");
+}
+//  Serial.print("MPU-X =");
+//  Serial.println(mpux);
+//
+//Serial.println("LEVEL!");
 
   
 
   /* Display calibration status for each sensor. */
-  uint8_t system, gyro, accel, mag = 0;
+  uint8_t system, gyro, accel, mag = 0; //calibrates the MPU, took straight from the example code 
   bno.getCalibration(&system, &gyro, &accel, &mag);
-//  Serial.print("CALIBRATION: Sys=");
-//  Serial.print(system, DEC);
-//  Serial.print(" Gyro=");
-//  Serial.print(gyro, DEC);
-//  Serial.print(" Accel=");
-//  Serial.print(accel, DEC);
-//  Serial.print(" Mag=");
-//  Serial.println(mag, DEC);
 
   delay(BNO055_SAMPLERATE_DELAY_MS);
 }
