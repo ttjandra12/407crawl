@@ -63,7 +63,6 @@ int ch6_CurrRead = 0;
 
 int pinFeedback = 8; //yellow cable
 int pinControl = 9; //white cable
-int pinButton = 18;
 
 float angle;        
 volatile int Kp = 1;                                // Proportional Gain
@@ -84,7 +83,6 @@ void pin_ISR(){                         // Interrupt function
 const int selectPins[3] = {36, 37, 38}; // S0~2, S1~3, S2~4
 const int Y1Input = 39; // Connect output Y1 to 5
 const int Y2Input = 40; // Connect output Y2 to 6 
-int trigger = 0;
 
 void setup() {
   // Set input pins
@@ -111,7 +109,6 @@ void setup() {
 
   pinMode(pinFeedback, INPUT);
   pinMode(pinControl, OUTPUT);
-  pinMode(pinButton, INPUT_PULLUP);
   
   //Set the servos
   servo1.attach(13);
@@ -123,7 +120,7 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
 
-  attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
+  //attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
 
   ToF_sensor.init();
   ToF_sensor.setMeasurementTimingBudget(20000);
@@ -146,6 +143,8 @@ void loop() {
   ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
   ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
   ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
+
+  Serial.println(ch3);
 
   //Motor Control
   if (ch4>1300 && ch4<1700)
@@ -312,11 +311,11 @@ void loop() {
   {
 
     cont_servo.writeMicroseconds(1440);
-    feedback360();
-    buttonPressed = false;
+    //feedback360();
+    trigger = 0;
 
     cont_servo.writeMicroseconds(1550);
-    return_func();
+    //return_func();
   
     ch6_PrevRead = ch6_CurrRead;
   }
@@ -394,8 +393,6 @@ void feedback360(){
   dc = (dutyScale * tHigh) / (tHigh + tLow);
   theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);
   thetaP = theta; 
-
-  buttonState = digitalRead(pinButton);
   
   while(1){
     // Measure high and low times, making sure to only take valid cycle
@@ -496,14 +493,12 @@ void return_func(){
   dc = (dutyScale * tHigh) / (tHigh + tLow);
   theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);
   thetaP = theta; 
-
-  buttonState = digitalRead(pinButton);
   
-  while(buttonState == LOW){
+  while(1){
     // Measure high and low times, making sure to only take valid cycle
     // times (a high and a low on opposite sides of the 0/359 boundary
     // will not be valid.
-    while(buttonState == LOW)                                    // Keep checking
+    while(1)                    
     {
       tHigh = pulseIn(pinFeedback, LOW);        // Measure time high
       tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
