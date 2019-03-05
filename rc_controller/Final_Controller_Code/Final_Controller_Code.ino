@@ -53,16 +53,8 @@ int servoPosition1 = 90;
 int servoPosition2 = 90;
 int servoIncrement = 6;
 
-int ch5_change = 600;
-int ch5_PrevRead = 1200;
-int ch5_CurrRead = 0;
-
-int ch6_change = 700;
-int ch6_PrevRead = 1200;
-int ch6_CurrRead = 0;
-
 int pinFeedback = 8; //yellow cable
-int pinControl = 9; //white cable
+int pinControl = 7; //white cable
 
 float angle;        
 volatile int Kp = 1;                                // Proportional Gain
@@ -113,7 +105,7 @@ void setup() {
   //Set the servos
   servo1.attach(13);
   servo2.attach(12);
-  cont_servo.attach(9);
+  cont_servo.attach(7);
 
   #define HIGH_ACCURACY
   
@@ -144,8 +136,6 @@ void loop() {
   ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
   ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
 
-  Serial.println(ch3);
-
   //Motor Control
   if (ch4>1300 && ch4<1700)
   {
@@ -153,23 +143,23 @@ void loop() {
     {
       // turn on motor one
       analogWrite(enA, 120);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
       
       // turn on motor two
       analogWrite(enB, 120);
-      digitalWrite(in3, HIGH);
-      digitalWrite(in4, LOW);
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, HIGH);
       
       // turn on motor three
       analogWrite(enC, 120);
-      digitalWrite(in5, HIGH);
-      digitalWrite(in6, LOW);
+      digitalWrite(in5, LOW);
+      digitalWrite(in6, HIGH);
       
       // turn on motor four
       analogWrite(enD, 120);
-      digitalWrite(in7, LOW);
-      digitalWrite(in8, HIGH);
+      digitalWrite(in7, HIGH);
+      digitalWrite(in8, LOW);
     }
   
     if (ch3>1300 && ch3<1700)
@@ -188,23 +178,23 @@ void loop() {
     {  
       // turn on motor one, reverse
       analogWrite(enA, 120);
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
+      digitalWrite(in1, HIGH);
+      digitalWrite(in2, LOW);
       
       // turn on motor two, reverse
       analogWrite(enB, 120);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
+      digitalWrite(in3, HIGH);
+      digitalWrite(in4, LOW);
       
       // turn on motor three, reverse
       analogWrite(enC, 120);
-      digitalWrite(in5, LOW);
-      digitalWrite(in6, HIGH);
+      digitalWrite(in5, HIGH);
+      digitalWrite(in6, LOW);
       
       // turn on motor four, reverse
       analogWrite(enD, 120);
-      digitalWrite(in7, HIGH);
-      digitalWrite(in8, LOW);
+      digitalWrite(in7, LOW);
+      digitalWrite(in8, HIGH);
     }
   }
 
@@ -212,13 +202,13 @@ void loop() {
   {    
     // turn on motor one, forward
     analogWrite(enA, 120);
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
       
     // turn on motor two, reverse
     analogWrite(enB, 120);
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
       
     // turn on motor three, reverse
     analogWrite(enC, 120);
@@ -235,13 +225,13 @@ void loop() {
   {
     // turn on motor one, reverse
     analogWrite(enA, 120);
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
       
      // turn on motor two, forward
      analogWrite(enB, 120);
-     digitalWrite(in3, HIGH);
-     digitalWrite(in4, LOW);
+     digitalWrite(in3, LOW);
+     digitalWrite(in4, HIGH);
 
      // turn on motor three, forward
      analogWrite(enC, 120);
@@ -255,7 +245,7 @@ void loop() {
   }
 
   //Control of the first servo motor in the FPV camera (up and down)
-  if (ch2 > 1700)
+  if (ch1 > 1700)
   {
     servoPosition1 += servoIncrement;
     if (servoPosition1>180)
@@ -265,7 +255,7 @@ void loop() {
     servo1.write(servoPosition1);
   }
  
-  if (ch2 < 1300)
+  if (ch1 < 1300)
   {
     servoPosition1 -= servoIncrement;
   
@@ -278,7 +268,7 @@ void loop() {
   }
 
  //Control of the second servo motor in the FPV camera (left and right)
-  if (ch1 > 1700)
+  if (ch2 > 1700)
   {
     servoPosition2 += servoIncrement;
   
@@ -290,7 +280,7 @@ void loop() {
     servo2.write(servoPosition2);
   }
  
-  if (ch1 < 1300)
+  if (ch2 < 1300)
   {
     servoPosition2 -= servoIncrement;
   
@@ -302,31 +292,20 @@ void loop() {
   servo2.write(servoPosition2);
   }
   
-  //Read the CH6 input
-  ch6_CurrRead = ch6;
-
-  int delta_ch6= abs(ch6_CurrRead-ch6_PrevRead);
+  Serial.println(ch6);
     
-  if(delta_ch6 > ch6_change ) //if the nob is turned past a certain point, start moving the scissor jack.
+  if(ch6 > 1600) //if the switch changes position the scissor jack will move.
   {
 
-    cont_servo.writeMicroseconds(1440);
+    cont_servo.writeMicroseconds(1380);
     //feedback360();
     trigger = 0;
 
-    cont_servo.writeMicroseconds(1550);
+    //cont_servo.writeMicroseconds(1380);
     //return_func();
-  
-    ch6_PrevRead = ch6_CurrRead;
   }
-  
-  
-  //Read the CH5 input
-  ch5_CurrRead = ch5;
-
-  int delta_ch5= abs(ch5_CurrRead-ch5_PrevRead);
     
-  if(delta_ch5 > ch5_change ) //if the nob is turned past a certain point, record sensor readouts.
+  if(ch5 > 1600 ) //if the nob is turned past a certain point, record sensor readouts.
   {
     String dataString = "";
 
@@ -365,8 +344,6 @@ void loop() {
  
     //Serial.print("Distance (mm): "); 
     //Serial.println(ToF_sensor.readRangeSingleMillimeters());
-  
-    ch5_PrevRead = ch5_CurrRead;
   }
  
 }
@@ -455,11 +432,11 @@ void feedback360(){
     thetaP = theta;                           // Theta previous for next rep
 
     if (angle > upper_limit) {
-      cont_servo.writeMicroseconds(1550);          // Make the servo go backwards
+      cont_servo.writeMicroseconds(1380);          // Make the servo go backwards
     }
 
     if (angle < lower_limit) {
-cont_servo.writeMicroseconds(1440);          // Make the servo go forward 
+cont_servo.writeMicroseconds(1680);          // Make the servo go forward 
     }
  
     if (trigger) {                      // Display angle in serial monitor if button presed 
