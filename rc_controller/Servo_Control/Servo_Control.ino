@@ -1,5 +1,6 @@
 #include <Servo.h>
-Servo servo;
+Servo servo1;
+Servo servo2;
 
 // Define Variables:
 const int chA=30;  //Constant variables relating to pin locations
@@ -16,7 +17,8 @@ int ch4;
 int ch5;
 int ch6;
 
-int servoPosition = 90;
+int servo1Position = 90;
+int servo2Position = 90;
 int servoIncrement = 6;
 
 
@@ -25,41 +27,51 @@ void setup() {
  Serial.begin(9600);
 
  // Set input pins
- pinMode(chA, INPUT);
- pinMode(chB,INPUT);
- pinMode(chC,INPUT);
- pinMode(chD,INPUT);
- pinMode(chE,INPUT);
- pinMode(chF,INPUT);
+ pinMode(chA, INPUT_PULLUP);
+ pinMode(chB,INPUT_PULLUP);
+ //pinMode(chC,INPUT_PULLUP);
+ //pinMode(chD,INPUT_PULLUP);
+ pinMode(chE,INPUT_PULLUP);
+ pinMode(chF,INPUT_PULLUP);
 
- servo.attach(12);
- servo.write(90);
+ servo1.attach(12);
+ servo1.write(90);
+ servo2.attach(13);
+ servo2.write(90);
 }
 
 void loop() {
  ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
- ch2 = pulseIn (chB,HIGH);  //Read and store channel 1
- ch3 = pulseIn (chC,HIGH);  //Read and store channel 1
- ch4 = pulseIn (chD,HIGH);  //Read and store channel 1
- ch5 = pulseIn (chE,HIGH);  //Read and store channel 1
- ch6 = pulseIn (chF,HIGH);  //Read and store channel 1
+ ch2 = pulseIn (chB,HIGH);  //Read and store channel 2
+ ch3 = pulseIn (chC,HIGH);  //Read and store channel 3
+ ch4 = pulseIn (chD,HIGH);  //Read and store channel 4
+ ch5 = pulseIn (chE,HIGH);  //Read and store channel 5
+ ch6 = pulseIn (chF,HIGH);  //Read and store channel 6
 
  if (ch2 > 1700)
  {
-  servoPosition -= servoIncrement;
-  servo.write(servoPosition);
+  servo1Position -= servoIncrement;
+  servo1.write(servo1Position);
  }
  
  if (ch2 < 1300)
  {
-  servoPosition += servoIncrement;
-  servo.write(servoPosition);
+  servo1Position += servoIncrement;
+  servo1.write(servo1Position);
  }
 
- Serial.print ("Ch2:");
- Serial.print (ch2);     
- Serial.print ("|");
- Serial.println(servoPosition);
+ //Servo 2: Up and Down
+ if (ch1 > 1700)
+ {
+  servo2Position -= servoIncrement;
+  servo2.write(servo2Position);
+ }
+ 
+ if (ch1 < 1300)
+ {
+  servo2Position += servoIncrement;
+  servo2.write(servo2Position);
+ }
 
-
+ Serial.println(ch5);
 }

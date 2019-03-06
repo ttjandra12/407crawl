@@ -64,8 +64,10 @@ void setup(void)
   levelx = 90; // initial x level
   levely = 99; //initial y level 
   
+
   xservo.attach(9); //attach to the correct pin
   yservo.attach(8); //attach to the correct pin
+
   
   
   xservo.write(levelx); //moves x servo
