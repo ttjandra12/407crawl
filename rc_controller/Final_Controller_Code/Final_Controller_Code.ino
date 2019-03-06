@@ -13,6 +13,18 @@
 Servo servo1;
 Servo servo2;
 Servo cont_servo;
+Servo xservo;
+Servo yservo;
+ 
+double levelx;
+double levely;
+
+double mpux;
+double mpuy;
+
+#define BNO055_SAMPLERATE_DELAY_MS (100)
+
+Adafruit_BNO055 bno = Adafruit_BNO055();
 
 VL53L0X ToF_sensor;
 
@@ -53,30 +65,51 @@ int servoPosition1 = 90;
 int servoPosition2 = 90;
 int servoIncrement = 6;
 
+int ch5_change = 700;
+int ch5_PrevRead = 1200;
+int ch5_CurrRead = 0;
+
+int ch6_change = 700;
+int ch6_PrevRead = 1200;
+int ch6_CurrRead = 0;
+
+
 int pinFeedback = 8; //yellow cable
 int pinControl = 7; //white cable
 
-float angle;        
+float angle;
+float recorded_angle;        
 volatile int Kp = 1;                                // Proportional Gain
 int turns = 0;
 
-int upper_limit = 1000;
+int upper_limit = -2000;
 int lower_limit = 0;
 
 
 int trigger = 0;
 void feedback360();
 void pin_ISR();
+void level();
 
 void pin_ISR(){                         // Interrupt function 
   trigger = 1; 
 }
 
-const int selectPins[3] = {36, 37, 38}; // S0~2, S1~3, S2~4
-const int Y1Input = 39; // Connect output Y1 to 5
-const int Y2Input = 40; // Connect output Y2 to 6 
+const int selectPins[3] = {43, 45, 47}; // S0~2, S1~3, S2~4
+const int Y1Input = 44; // Connect output Y1 to 5
+const int Y2Input = 46; // Connect output Y2 to 6 
 
 void setup() {
+
+  Serial.begin(9600);
+
+  if(!bno.begin())
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while(1);
+  }
+  
   // Set input pins
   pinMode(chA, INPUT);
   pinMode(chB,INPUT);
@@ -109,7 +142,6 @@ void setup() {
 
   #define HIGH_ACCURACY
   
-  Serial.begin(9600);
   Wire.begin();
 
   //attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
@@ -125,7 +157,23 @@ void setup() {
   }
   pinMode(Y1Input, INPUT); // Set up Y1 as an input
   pinMode(Y2Input, INPUT); // Set up Y2 as an input
+
+  if (!SD.begin(53)) {
+    Serial.println("SD card is not connected");
+    return;
+  }
+
+  bno.setExtCrystalUse(true);
+
+  levelx = 90; // initial x level
+  levely = 99; //initial y level 
   
+  xservo.attach(11); //attach to the correct pin
+  yservo.attach(6); //attach to the correct pin
+
+  xservo.write(levelx); //moves x servo
+  Serial.print("Angle Set Up X");
+  yservo.write(levely); //moves y servo
 }
 
 void loop() {
@@ -291,21 +339,35 @@ void loop() {
   
   servo2.write(servoPosition2);
   }
-  
-  Serial.println(ch6);
+
+  //Read the CH5 input
+  ch6_CurrRead = ch6;
+  int delta_ch6= abs(ch6_CurrRead-ch6_PrevRead);
     
-  if(ch6 > 1600) //if the switch changes position the scissor jack will move.
+  if(delta_ch6 > ch6_change) //if the switch changes position the scissor jack will move.
   {
 
-    cont_servo.writeMicroseconds(1380);
-    //feedback360();
+    cont_servo.writeMicroseconds(1680);
+    feedback360();
     trigger = 0;
 
-    //cont_servo.writeMicroseconds(1380);
-    //return_func();
+    recorded_angle = -1*angle;
+    Serial.print("The Recorded Angle is: ");
+    Serial.println(recorded_angle);
+    Serial.print("The Angle is: ");
+    Serial.println(angle);
+
+    cont_servo.writeMicroseconds(1380);
+    return_func();
+
+    ch6_PrevRead = ch6_CurrRead;
   }
+
+  //Read the CH5 input
+  ch5_CurrRead = ch5;
+  int delta_ch5= abs(ch5_CurrRead-ch5_PrevRead);
     
-  if(ch5 > 1600 ) //if the nob is turned past a certain point, record sensor readouts.
+  if(delta_ch5 > ch5_change ) //if the nob is turned past a certain point, record sensor readouts.
   {
     String dataString = "";
 
@@ -313,18 +375,22 @@ void loop() {
     for (int i = 0; i < 3; i++){
       //collects data from ToF sensor
       Serial.println(String(i));
-      if (i == 0){
-        float sensor = ToF_sensor.readRangeSingleMillimeters();
-        dataString += String(sensor);
-      } 
       if (i == 1){
-        //float sensor1 = euler.y(); //pitch in degrees
-        //float sensor2 = euler.z(); //roll in degrees
-        //dataString += "," + String(sensor1) + "," + String(sensor2);
+        level();
+        
+        float sensor = ToF_sensor.readRangeSingleMillimeters();
+        dataString += "," + String(sensor);
+      } 
+      if (i == 0){
+        imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+        
+        float sensor1 = euler.y(); //pitch in degrees
+        float sensor2 = euler.z(); //roll in degrees
+        dataString += String(sensor1) + "," + String(sensor2);
       }
       if (i == 2){ //dummy code in place for 1 more sensor
         dataString += ",";
-        float height_adjs = angle*3.67; //get the height adjustment by mutiplying angular displacement with corresponding quantity
+        float height_adjs = angle; //get the height adjustment by mutiplying angular displacement with corresponding quantity
         dataString += String(height_adjs);
       }
     }
@@ -342,8 +408,7 @@ void loop() {
       Serial.println("error opening test1.csv");
     }
  
-    //Serial.print("Distance (mm): "); 
-    //Serial.println(ToF_sensor.readRangeSingleMillimeters());
+    ch5_PrevRead = ch5_CurrRead;
   }
  
 }
@@ -430,12 +495,12 @@ void feedback360(){
     }
     
     thetaP = theta;                           // Theta previous for next rep
-
-    if (angle > upper_limit) {
+    
+    if (angle < upper_limit) {
       cont_servo.writeMicroseconds(1380);          // Make the servo go backwards
     }
 
-    if (angle < lower_limit) {
+    if (angle > lower_limit) {
 cont_servo.writeMicroseconds(1680);          // Make the servo go forward 
     }
  
@@ -516,9 +581,8 @@ void return_func(){
     }
     
     thetaP = theta;                           // Theta previous for next rep
-
-
-    if (angle <= 0) {
+    
+    if (angle >= 0) {
       cont_servo.writeMicroseconds(1500);          // Make the servo go forward 
       break;
     }
@@ -535,6 +599,82 @@ void selectMuxPin(byte pin)
       digitalWrite(selectPins[i], HIGH);
     else
       digitalWrite(selectPins[i], LOW);
+  }
+}
+
+void level()
+{
+  while(1) {
+  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+
+  /* Display the floating point data */
+
+  mpux = round(euler.z()); //rounds the mpu values to move the motor and reduce noise for if statement
+  mpuy = round(euler.y()); //rounds the mpu values to move the motor and reduce noise for if statement
+
+// yservo 
+if (mpuy < -2 && mpuy >=-90) {
+  if (mpuy == -3){
+    return;  //if it is already level, it ends the code
+  }
+  else{
+    levely = levely + 1;
+    yservo.write(levely); //moves the y motor to one side until it is level
+  }
+//  Serial.print("MPU-Y =");
+//  Serial.println(mpuy);
+}
+
+
+if (mpuy <=90 && mpuy > -2){
+  if (mpuy ==0 || mpuy ==-1 || mpuy ==1){
+    return; //if level already, moves out
+  }
+  else{
+
+    levely = levely - 1;
+    yservo.write(levely); // moves the y motor to one side until it is level
+  }
+//  Serial.print("MPU-Y =");
+//  Serial.println(mpuy);
+}
+
+//xservo
+if (mpux >= -180 && mpux <= - 90) {
+  if (mpux == -180 || mpux == -179 || mpux == -178){
+    return; //if x side is level, moves out of the if statement
+  }
+  else {
+    levelx = levelx - 1;
+    xservo.write(levelx); //moves the x motor to one side until it is level
+  }
+//  Serial.print("MPU-X =");
+//  Serial.println(mpux);
+}
+
+if (mpux >= 90 && mpux < 180){
+  if (mpux == 180 || mpux == 179){
+    return; // if x side is level, moves out of the if statement 
+  }
+  else {
+    levelx = levelx + 1;
+    xservo.write(levelx); //moves the x motor to one side until it is level
+  }
+
+}
+ 
+
+  /* Display calibration status for each sensor. */
+  uint8_t system, gyro, accel, mag = 0; //calibrates the MPU, took straight from the example code 
+  bno.getCalibration(&system, &gyro, &accel, &mag);
+
+  delay(BNO055_SAMPLERATE_DELAY_MS);
+
+  if (mpuy ==0 || abs(mpuy) ==1){
+    if (abs(mpux) == 180 || abs(mpux) == 179){
+      break;
+      }
+    }
   }
 }
 
