@@ -12,8 +12,8 @@
 
 Servo servo;
 
-int pinFeedback = 6;
-int pinControl = 9; 
+int pinFeedback = 8;
+int pinControl = 7; 
 int pinButton = 3;
 
 float angle;        
@@ -38,7 +38,7 @@ void setup() {
   pinMode(pinControl, OUTPUT);
   pinMode(pinButton, INPUT_PULLUP);
 
-  servo.attach(9);
+  servo.attach(7);
 
   attachInterrupt(digitalPinToInterrupt(3), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
 
