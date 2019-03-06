@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-#include "VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
+#include <VL53L0X.h>   
 #include <Wire.h>               // Libraries already included as default in Arduino              
-=======
-#include <VL53L0X.h>
-#include <Wire.h>
->>>>>>> 1807416ae32699ef23881b65540f716678ef2ea8
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
@@ -125,7 +120,13 @@ void setup() {
 
   ToF_sensor.init();
   ToF_sensor.setMeasurementTimingBudget(20000);
-  
+
+  Serial.print("Initializing SD card....");
+  if (!SD.begin(53)){
+    Serial.println("Initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
 
 }
 
@@ -438,13 +439,11 @@ void feedback360(){
     }
 
     if (angle < lower_limit) {
-cont_servo.writeMicroseconds(1440);          // Make the servo go forward 
+      cont_servo.writeMicroseconds(1440);          // Make the servo go forward 
     }
  
     if (buttonPressed) {                      // Display angle in serial monitor if button presed 
       cont_servo.writeMicroseconds(1500);          // Stop the servo
-      //Serial.print("Angle: ");
-      //Serial.println(angle); 
       buttonPressed = false;
       delay(1000);
       break;

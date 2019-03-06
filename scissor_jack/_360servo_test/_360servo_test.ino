@@ -46,7 +46,7 @@ void setup() {
 
 void loop() {
 
-  servo.writeMicroseconds(1380);          // Servo turns in clockwise direction at half speed
+  servo.writeMicroseconds(1280);          // Servo turns in clockwise direction at half speed
   feedback360();
   Serial.println("Interrupt Triggered");
   buttonPressed = false;                  // Redundant but needed to prevent interrupt from running twice (issue more debugging here)
