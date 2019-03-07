@@ -64,12 +64,14 @@ void setup(void)
   levelx = 90; // initial x level
   levely = 99; //initial y level 
   
-  xservo.attach(46); //attach to the correct pin
-  yservo.attach(11); //attach to the correct pin
+
+  xservo.attach(9); //attach to the correct pin
+  yservo.attach(8); //attach to the correct pin
+
   
   
   xservo.write(levelx); //moves x servo
-//  Serial.print("Angle Set Up X");
+  Serial.print("Angle Set Up X");
   yservo.write(levely); //moves y servo
 
   delay(5000);
@@ -98,24 +100,26 @@ if (mpuy < -2 && mpuy >=-90) {
   }
   else{
     levely = levely + 1;
-    yservo.write(levely); //moves the y motor to one side until it is level
+    yservo.write(levely);//moves the y motor to one side until it is level
+    delay(1000);
   }
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
+  Serial.print("MPU-Y =");
+  Serial.println(mpuy);
 }
 
 
 if (mpuy <=90 && mpuy > -2){
-  if (mpuy ==0 || mpuy ==-1 || mpuy ==1){
+  if (mpuy ==0 || abs(mpuy) ==1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
     return; //if level already, moves out
   }
   else{
 
     levely = levely - 1;
     yservo.write(levely); // moves the y motor to one side until it is level
+    delay(1000);
   }
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
+  Serial.print("MPU-Y =");
+  Serial.println(mpuy);
 }
 
 //xservo
@@ -126,9 +130,10 @@ if (mpux > -180 && mpux <= - 90) {
   else {
     levelx = levelx - 1;
     xservo.write(levelx); //moves the x motor to one side until it is level
+    delay(1000);
   }
-//  Serial.print("MPU-X =");
-//  Serial.println(mpux);
+  Serial.print("MPU-X =");
+  Serial.println(mpux);
 }
 
 if (mpux >= 90 && mpux < 180){
@@ -138,13 +143,15 @@ if (mpux >= 90 && mpux < 180){
   else {
     levelx = levelx + 1;
     xservo.write(levelx); //moves the x motor to one side until it is level
+    delay(1000);
   }
 
 }
-//  Serial.print("MPU-X =");
-//  Serial.println(mpux);
-//
-//Serial.println("LEVEL!");
+
+  Serial.print("MPU-X =");
+  Serial.println(mpux);
+delay(1000);
+Serial.println("LEVEL!");
 
   
 

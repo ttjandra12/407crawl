@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+#include <VL53L0X.h>   
+#include <Wire.h>               // Libraries already included as default in Arduino              
+=======
 #include "VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
 #include <Wire.h>               // Libraries already included as default in Arduino              =======
 #include <VL53L0X.h>
 #include <Wire.h>
+>>>>>>> 631f9dd6d14b1406b11405c297c6339e9d55fa9d
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
@@ -149,6 +154,14 @@ void setup() {
   ToF_sensor.init();
   ToF_sensor.setMeasurementTimingBudget(20000);
 
+<<<<<<< HEAD
+  Serial.print("Initializing SD card....");
+  if (!SD.begin(53)){
+    Serial.println("Initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+=======
   // Set up the select pins from the sensor carousel as outputs:
   for (int i=0; i<3; i++)
   {
@@ -170,6 +183,7 @@ void setup() {
   
   xservo.attach(11); //attach to the correct pin
   yservo.attach(6); //attach to the correct pin
+>>>>>>> 631f9dd6d14b1406b11405c297c6339e9d55fa9d
 
   xservo.write(levelx); //moves x servo
   Serial.print("Angle Set Up X");
@@ -500,13 +514,22 @@ void feedback360(){
       cont_servo.writeMicroseconds(1380);          // Make the servo go backwards
     }
 
+<<<<<<< HEAD
+    if (angle < lower_limit) {
+      cont_servo.writeMicroseconds(1440);          // Make the servo go forward 
+=======
     if (angle > lower_limit) {
 cont_servo.writeMicroseconds(1680);          // Make the servo go forward 
+>>>>>>> 631f9dd6d14b1406b11405c297c6339e9d55fa9d
     }
  
     if (trigger) {                      // Display angle in serial monitor if button presed 
       cont_servo.writeMicroseconds(1500);          // Stop the servo
+<<<<<<< HEAD
+      buttonPressed = false;
+=======
       trigger = 0;
+>>>>>>> 631f9dd6d14b1406b11405c297c6339e9d55fa9d
       delay(1000);
       break;
     }
