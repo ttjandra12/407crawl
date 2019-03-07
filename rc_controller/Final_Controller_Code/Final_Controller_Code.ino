@@ -103,12 +103,12 @@ void setup() {
 
   Serial.begin(9600);
 
-  if(!bno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
-  }
+//  if(!bno.begin())
+//  {
+//    /* There was a problem detecting the BNO055 ... check your connections */
+//    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+//    while(1);
+//  }
   
   // Set input pins
   pinMode(chA, INPUT);
@@ -396,7 +396,7 @@ void loop() {
     }
 
     //opening file on SD card and writing data string onto it
-    myFile = SD.open("TEST2.csv", FILE_WRITE);
+    myFile = SD.open("OUTPUT_FINAL.csv", FILE_WRITE);
     if (myFile){
       myFile.println(dataString);
       myFile.close();
@@ -582,7 +582,7 @@ void return_func(){
     
     thetaP = theta;                           // Theta previous for next rep
     
-    if (angle >= 0) {
+    if (angle >= 1000) {
       cont_servo.writeMicroseconds(1500);          // Make the servo go forward 
       break;
     }
