@@ -59,7 +59,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Continuous Servo Test");
 
-  attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
+  //attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
 }
 
 void loop() {
@@ -78,12 +78,13 @@ void loop() {
   if(delta_ch6 > ch6_change ) //if the nob is turned past a certain point, start moving the scissor jack.
   {
 
-  servo.writeMicroseconds(1440);
-  feedback360();
-  buttonPressed = false;
+  servo.writeMicroseconds(1680);
+  Serial.println(ch6);
+  //feedback360();
+  //buttonPressed = false;
 
-  servo.writeMicroseconds(1550);
-  return_func();
+  //servo.writeMicroseconds(1550);
+  //return_func();
   
   ch6_PrevRead = ch6_CurrRead;
   }
