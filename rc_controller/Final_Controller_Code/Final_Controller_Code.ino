@@ -1,10 +1,6 @@
-
-#include <VL53L0X.h>   
-#include <Wire.h>               // Libraries already included as default in Arduino              
 #include "VL53L0X.h"            //Changed library .h file (previous: "VL53L0X.h")
 #include <Wire.h>               // Libraries already included as default in Arduino   
 #include <VL53L0X.h>
-#include <Wire.h>
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
@@ -101,8 +97,8 @@ void pin_ISR(){                         // Interrupt function
 }
 
 const int selectPins[3] = {43, 45, 47}; // S0~2, S1~3, S2~4
-const int Y1Input = 44; // Connect output Y1 to 5
-const int Y2Input = 46; // Connect output Y2 to 6 
+const int Y1Input = 44; // Connect output Y1 to
+const int Y2Input = 46; // Connect output Y2 
 
 void setup() {
 
@@ -149,8 +145,6 @@ void setup() {
   
   Wire.begin();
 
-  //attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
-
   ToF_sensor.init();
   ToF_sensor.setMeasurementTimingBudget(20000);
 
@@ -160,12 +154,14 @@ void setup() {
     return;
   }
   Serial.println("initialization done.");
+  
   // Set up the select pins from the sensor carousel as outputs:
   for (int i=0; i<3; i++)
   {
     pinMode(selectPins[i], OUTPUT);
     digitalWrite(selectPins[i], HIGH);
   }
+  
   pinMode(Y1Input, INPUT); // Set up Y1 as an input
   pinMode(Y2Input, INPUT); // Set up Y2 as an input
 
@@ -365,8 +361,6 @@ void loop() {
     recorded_angle = -1*angle;
     Serial.print("The Recorded Angle is: ");
     Serial.println(recorded_angle);
-    Serial.print("The Angle is: ");
-    Serial.println(angle);
 
     cont_servo.writeMicroseconds(1380);
     return_func();
@@ -458,8 +452,8 @@ void feedback360(){
       for (byte pin=0; pin<=7; pin++)
       {
         selectMuxPin(pin); // Select one at a time
-        int inputY1Value = digitalRead(39); // and read Y1
-        int inputY2Value = digitalRead(40); // and read Y2
+        int inputY1Value = digitalRead(44); // and read Y1
+        int inputY2Value = digitalRead(46); // and read Y2
 
         if (inputY1Value == HIGH || inputY2Value == HIGH){
           trigger= 1;
