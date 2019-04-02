@@ -27,9 +27,9 @@ component.
 
 ******************************************************************************/
 // Pin Definitions
-const int selectPins[3] = {41, 43, 45}; // S0~2, S1~3, S2~4
-const int Y1Input = 38; // Connect output Y1 to 5
-const int Y2Input = 40; // Connect output Y2 to 6 
+const int selectPins[3] = {43, 45, 47}; // S0~2, S1~3, S2~4
+const int Y1Input = 44; // Connect output Y1 to 5
+const int Y2Input = 46; // Connect output Y2 to 6 
 
 void setup() 
 {
@@ -60,8 +60,8 @@ void loop()
   for (byte pin=0; pin<=7; pin++)
   {
     selectMuxPin(pin); // Select one at a time
-    int inputY1Value = digitalRead(40); // and read Y1
-    int inputY2Value = digitalRead(42); // and read Y2
+    int inputY1Value = digitalRead(44); // and read Y1
+    int inputY2Value = digitalRead(46); // and read Y2
     Serial.print(String(inputY1Value) + "\t" + String(inputY2Value)+ "\t");
   
   }

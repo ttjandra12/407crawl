@@ -1,7 +1,6 @@
-#include "VL53L0X.h"   //Changed library .h file (previous: "VL53L0X.h")
-#include <Wire.h>               // Libraries already included as default in Arduino              =======
+#include "VL53L0X.h"            //Changed library .h file (previous: "VL53L0X.h")
+#include <Wire.h>               // Libraries already included as default in Arduino   
 #include <VL53L0X.h>
-#include <Wire.h>
 #include <Servo.h>
 #include <SPI.h>
 #include <SD.h>
@@ -90,25 +89,27 @@ int trigger = 0;
 void feedback360();
 void pin_ISR();
 void level();
+void return_func();
+void selectMuxPin(byte pin);
 
 void pin_ISR(){                         // Interrupt function 
   trigger = 1; 
 }
 
 const int selectPins[3] = {43, 45, 47}; // S0~2, S1~3, S2~4
-const int Y1Input = 44; // Connect output Y1 to 5
-const int Y2Input = 46; // Connect output Y2 to 6 
+const int Y1Input = 44; // Connect output Y1 to
+const int Y2Input = 46; // Connect output Y2 
 
 void setup() {
 
   Serial.begin(9600);
 
-  if(!bno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
-  }
+//  if(!bno.begin())
+//  {
+//    /* There was a problem detecting the BNO055 ... check your connections */
+//    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+//    while(1);
+//  }
   
   // Set input pins
   pinMode(chA, INPUT);
@@ -144,17 +145,23 @@ void setup() {
   
   Wire.begin();
 
-  //attachInterrupt(digitalPinToInterrupt(18), pin_ISR, CHANGE);  // Detects when there is a change in buttonState and runs pin_ISR()
-
   ToF_sensor.init();
   ToF_sensor.setMeasurementTimingBudget(20000);
 
+  Serial.print("Initializing SD card....");
+  if (!SD.begin(53)){
+    Serial.println("Initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+  
   // Set up the select pins from the sensor carousel as outputs:
   for (int i=0; i<3; i++)
   {
     pinMode(selectPins[i], OUTPUT);
     digitalWrite(selectPins[i], HIGH);
   }
+  
   pinMode(Y1Input, INPUT); // Set up Y1 as an input
   pinMode(Y2Input, INPUT); // Set up Y2 as an input
 
@@ -340,7 +347,7 @@ void loop() {
   servo2.write(servoPosition2);
   }
 
-  //Read the CH5 input
+  //Read the CH6 input
   ch6_CurrRead = ch6;
   int delta_ch6= abs(ch6_CurrRead-ch6_PrevRead);
     
@@ -354,8 +361,6 @@ void loop() {
     recorded_angle = -1*angle;
     Serial.print("The Recorded Angle is: ");
     Serial.println(recorded_angle);
-    Serial.print("The Angle is: ");
-    Serial.println(angle);
 
     cont_servo.writeMicroseconds(1380);
     return_func();
@@ -396,7 +401,7 @@ void loop() {
     }
 
     //opening file on SD card and writing data string onto it
-    myFile = SD.open("TEST2.csv", FILE_WRITE);
+    myFile = SD.open("OUTPUT_FINAL.csv", FILE_WRITE);
     if (myFile){
       myFile.println(dataString);
       myFile.close();
@@ -447,8 +452,8 @@ void feedback360(){
       for (byte pin=0; pin<=7; pin++)
       {
         selectMuxPin(pin); // Select one at a time
-        int inputY1Value = digitalRead(39); // and read Y1
-        int inputY2Value = digitalRead(40); // and read Y2
+        int inputY1Value = digitalRead(44); // and read Y1
+        int inputY2Value = digitalRead(46); // and read Y2
 
         if (inputY1Value == HIGH || inputY2Value == HIGH){
           trigger= 1;
@@ -499,9 +504,9 @@ void feedback360(){
     if (angle < upper_limit) {
       cont_servo.writeMicroseconds(1380);          // Make the servo go backwards
     }
-
+      
     if (angle > lower_limit) {
-cont_servo.writeMicroseconds(1680);          // Make the servo go forward 
+      cont_servo.writeMicroseconds(1680);          // Make the servo go forward 
     }
  
     if (trigger) {                      // Display angle in serial monitor if button presed 
@@ -510,11 +515,11 @@ cont_servo.writeMicroseconds(1680);          // Make the servo go forward
       delay(1000);
       break;
     }
-  }
+  } 
 }
 
 void return_func(){
-  
+  Serial.println(angle);
   int unitsFC = 360;                        // Units in a full circle
   int dutyScale = 100;                      // Scale duty cycle to 1/1000ths
   float dcMin = 2.9;                        // Minimum duty cycle, 2.9%
@@ -582,7 +587,7 @@ void return_func(){
     
     thetaP = theta;                           // Theta previous for next rep
     
-    if (angle >= 0) {
+    if (angle >= 1000) {
       cont_servo.writeMicroseconds(1500);          // Make the servo go forward 
       break;
     }
@@ -591,6 +596,7 @@ void return_func(){
 
 // The selectMuxPin function sets the S0, S1, and S2 pins
 // accordingly, given a pin from 0-7.
+
 void selectMuxPin(byte pin)
 {
   for (int i=0; i<3; i++)
