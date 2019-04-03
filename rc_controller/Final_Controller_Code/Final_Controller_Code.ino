@@ -354,15 +354,16 @@ void loop() {
   if(delta_ch6 > ch6_change) //if the switch changes position the scissor jack will move.
   {
 
-    cont_servo.writeMicroseconds(1680);
+    cont_servo.writeMicroseconds(1560);
     feedback360();
     trigger = 0;
 
     recorded_angle = -1*angle;
     Serial.print("The Recorded Angle is: ");
     Serial.println(recorded_angle);
+    delay(5000);
 
-    cont_servo.writeMicroseconds(1380);
+    cont_servo.writeMicroseconds(1440);
     return_func();
 
     ch6_PrevRead = ch6_CurrRead;
@@ -502,11 +503,11 @@ void feedback360(){
     thetaP = theta;                           // Theta previous for next rep
     
     if (angle < upper_limit) {
-      cont_servo.writeMicroseconds(1380);          // Make the servo go backwards
+      cont_servo.writeMicroseconds(1440);          // Make the servo go backwards
     }
       
     if (angle > lower_limit) {
-      cont_servo.writeMicroseconds(1680);          // Make the servo go forward 
+      cont_servo.writeMicroseconds(1560);          // Make the servo go forward 
     }
  
     if (trigger) {                      // Display angle in serial monitor if button presed 
@@ -519,7 +520,6 @@ void feedback360(){
 }
 
 void return_func(){
-  Serial.println(angle);
   int unitsFC = 360;                        // Units in a full circle
   int dutyScale = 100;                      // Scale duty cycle to 1/1000ths
   float dcMin = 2.9;                        // Minimum duty cycle, 2.9%
@@ -587,8 +587,10 @@ void return_func(){
     
     thetaP = theta;                           // Theta previous for next rep
     
-    if (angle >= 1000) {
-      cont_servo.writeMicroseconds(1500);          // Make the servo go forward 
+    if (angle >= 0) {
+      cont_servo.writeMicroseconds(1500); // Make the servo go forward 
+      Serial.println("The return Angle is:");
+      Serial.println(angle);
       break;
     }
   }
