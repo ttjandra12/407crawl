@@ -1,3 +1,4 @@
+import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 import pandas as pd
@@ -9,7 +10,7 @@ Y_m = 9.25
 X_i = 0.5*(float(X_m) - 1)
 Y_i = 0.5*(float(Y_m) - 1)
 
-class App:
+class App():
 
     def __init__(self, master):
         frame = Frame(master)
