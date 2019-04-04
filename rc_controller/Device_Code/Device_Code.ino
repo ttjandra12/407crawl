@@ -24,7 +24,7 @@ double mpuy;
 
 #define BNO055_SAMPLERATE_DELAY_MS (100)
 
-Adafruit_BNO055 bno = Adafruit_BNO055(4, BNO055_ADDRESS_B);
+Adafruit_BNO055 bno = Adafruit_BNO055();
 
 VL53L0X ToF_sensor;
 VL53L0X Scissor_Sensor;
@@ -112,7 +112,7 @@ const int Y2Input = 46; // Connect output Y2
 void setup() {
 
   Serial.begin(9600);
-
+ 
   // Set input pins
   pinMode(chA, INPUT);
   pinMode(chB,INPUT);
@@ -145,6 +145,7 @@ void setup() {
   xservo.attach(11);
   yservo.attach(10);
 
+
   //Set the pins of the ToF sensors as outputs and give them a low value
   pinMode(9, OUTPUT); // Pin for ToF sensor
   pinMode(12, OUTPUT); //Pin for scissor sensor
@@ -161,15 +162,16 @@ void setup() {
   //Setup ToF Sensor and give it an address
   pinMode(9, INPUT);
   delay(150);
-  ToF_sensor.init(true);
+  ToF_sensor.init(true); //WTF
   delay(100);
   ToF_sensor.setAddress((uint8_t)22);
   ToF_sensor.setMeasurementTimingBudget(20000);
+  
 
   //Setup Scissor Sensor and give it an address
   pinMode(12, INPUT);
   delay(150);
-  Scissor_Sensor.init(true);
+  Scissor_Sensor.init(true);// WTF 2.0
   delay(100);
   Scissor_Sensor.setAddress((uint8_t)25);
   Scissor_Sensor.setMeasurementTimingBudget(20000);
@@ -213,6 +215,7 @@ void setup() {
 
 
   bno.setExtCrystalUse(true);
+  Serial.println("CHECK 1");
 }
 
 void loop() {
@@ -221,9 +224,13 @@ void loop() {
   {
     float initial_height = Scissor_Sensor.readRangeSingleMillimeters();
     trigger_first_height = 1;
-    Serial.print("The intial height of the Scissor Jack is: ");
+    Serial.print("The initial height of the Scissor Jack is: ");
     Serial.println(initial_height);
     recorded_height = initial_height;
+    
+    //Calibrate the MPU
+    uint8_t system, gyro, accel, mag = 0;
+    bno.getCalibration(&system, &gyro, &accel, &mag);
   }
   
   ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
@@ -439,9 +446,9 @@ void loop() {
       } 
       //Data from the NPU in the leveling platform
       if (i == 0){
-        imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
-        
+        imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  
         float sensor1 = euler.y(); //pitch in degrees
         float sensor2 = euler.z(); //roll in degrees
         dataString += String(sensor1) + "," + String(sensor2);
