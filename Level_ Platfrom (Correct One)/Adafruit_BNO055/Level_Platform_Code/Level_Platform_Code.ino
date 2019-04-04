@@ -61,8 +61,8 @@ void setup(void)
 
   Serial.println("Calibration status values: 0=uncalibrated, 3=fully calibrated");
 
-  levelx = 88; // initial x level
-  levely = 93; //initial y level 
+  levelx = 110; // initial x level 88
+  levely = 110; //initial y level 93
   
 
   xservo.attach(8); //attach to the correct pin
@@ -85,22 +85,6 @@ void setup(void)
 /**************************************************************************/
 void loop(void)
 {
-//
-//  
-//  levelx = 88; // initial x level
-//  levely = 93; //initial y level 
-//  
-//
-//  xservo.attach(8); //attach to the correct pin
-//  yservo.attach(9); //attach to the correct pin
-//
-//  
-//  
-//  xservo.write(levelx); //moves x servo
-//  yservo.write(levely); //moves y servo
-//  
-//  Serial.print("Angle Set Up");
-//  delay(5000);
 
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
@@ -115,9 +99,10 @@ if (mpuy < -2 && mpuy >=-90) {
     return;  //if it is already level, it ends the code
   }
   else{
-    levely = levely + 1; //levely = levely + 1;
+    levely = levely + 2; //levely = levely + 1;
     yservo.write(levely);//moves the y motor to one side until it is level
     delay(1000);
+  Serial.println("TRIGGER 2");
   }
   Serial.print("MPU-Y =");
   Serial.println(mpuy);
@@ -130,9 +115,10 @@ if (mpuy <=90 && mpuy > -2){
   }
   else{
 
-    levely = levely - 1; // levely = levely - 1
+    levely = levely - 2; // levely = levely - 1
     yservo.write(levely); // moves the y motor to one side until it is level
     delay(1000);
+    Serial.println("TRIGGER 1");
   }
   Serial.print("MPU-Y =");
   Serial.println(mpuy);
@@ -144,7 +130,7 @@ if (mpux > -180 && mpux <= - 90) {
     return; //if x side is level, moves out of the if statement
   }
   else {
-    levelx = levelx - 1; // levelx = levelx - 1
+    levelx = levelx - 2; // levelx = levelx - 1
     xservo.write(levelx); //moves the x motor to one side until it is level
     delay(1000);
   }
@@ -157,33 +143,44 @@ if (mpux >= 90 && mpux < 180){
     return; // if x side is level, moves out of the if statement 
   }
   else {
-    levelx = levelx + 1; //levelx = levelx + 1;
+    levelx = levelx + 2; //levelx = levelx + 1;
     xservo.write(levelx); //moves the x motor to one side until it is level
     delay(1000);
   }
   Serial.print("MPU-X =");
   Serial.println(mpux);
+  Serial.println("Triggered");
 }
 
 //  Serial.print("MPU-X =");
 //  Serial.println(mpux);
 delay(1000);
 
-if (mpuy = -3 || mpuy ==0 || abs(mpuy) ==1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
-  Serial.print("FINAL MPUY =");
-  Serial.println(mpuy);
-  
+if (mpuy == -2 || mpuy == -3 || mpuy ==0 || mpuy== 1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
   yservo.detach();
+  Serial.print("FINAL MPUY =");
+  Serial.println(mpuy); 
+  Serial.println("DONE WITH Y");
+}
+  else {
+    yservo.attach(9);
+    Serial.println("NOT DONE Y");
+    Serial.println(mpuy);
+
 }
   if(mpux == -180 || mpux == -179 || mpux == -178 ||mpux == 180 || mpux == 179){
+  xservo.detach();
   Serial.print("FINAL MPUX =");
   Serial.println(mpux);
-   xservo.detach();
   
-Serial.println("LEVEL!");
-}
+  
+  Serial.println("LEVEL!");
+  }
+  else {
+  xservo.attach(8);
+  Serial.println("NOT DONE X");
 
-  
+}
 
   /* Display calibration status for each sensor. */
   uint8_t system, gyro, accel, mag = 0; //calibrates the MPU, took straight from the example code 

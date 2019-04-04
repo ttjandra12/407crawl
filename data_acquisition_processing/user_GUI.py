@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 import math
 
-X_m = 11
-Y_m = 9.25
+X_m = 11.625
+Y_m = 8.375
 X_i = 0.5*(float(X_m) - 1)
 Y_i = 0.5*(float(Y_m) - 1)
 
