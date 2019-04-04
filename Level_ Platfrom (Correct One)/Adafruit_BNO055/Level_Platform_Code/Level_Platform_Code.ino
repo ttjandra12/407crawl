@@ -99,10 +99,16 @@ if (mpuy < -2 && mpuy >=-90) {
   if (mpuy == -3){
     return;  //if it is already level, it ends the code
   }
-  else{
+  if (mpuy <-3 && mpuy >= -20){
     levely = levely + 1;
+    yservo.write(levely);
+    Serial.println("One");
+  }
+  else{
+    levely = levely + 10; // if problem change to 1 rather than 10
     yservo.write(levely);//moves the y motor to one side until it is level
     delay(1000);
+    Serial.println("Two");
  
   }
   Serial.print("MPU-Y =");
@@ -114,12 +120,16 @@ if (mpuy <=90 && mpuy > -2){
   if (mpuy ==0 || abs(mpuy) ==1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
     return; //if level already, moves out
   }
+ if (mpuy <= 20 && mpuy > 4){
+   levely = levely - 1;
+   yservo.write(levely);
+   Serial.println("Three");
+ }
   else{
-
-    levely = levely - 1;
+    levely = levely - 10; //if problem change to 1 rather than 10
     yservo.write(levely); // moves the y motor to one side until it is level
     delay(1000);
- 
+    Serial.println("Four");
   }
   Serial.print("MPU-Y =");
   Serial.println(mpuy);
@@ -130,10 +140,16 @@ if (mpux > -180 && mpux <= - 90) {
   if (mpux == -180 || mpux == -179 || mpux == -178){
     return; //if x side is level, moves out of the if statement
   }
+  if (mpux > -178 && mpux <= -168){
+    levelx = levelx - 1;  
+    xservo.write(levelx);
+    Serial.println("Five");
+  }
   else {
-    levelx = levelx - 1;
+    levelx = levelx - 10; //if problematic change to 1 rathen than 10
     xservo.write(levelx); //moves the x motor to one side until it is level
     delay(1000);
+    Serial.println("Six");
   }
   Serial.print("MPU-X =");
   Serial.println(mpux);
@@ -143,126 +159,20 @@ if (mpux >= 90 && mpux < 180){
   if (mpux == 180 || mpux == 179){
     return; // if x side is level, moves out of the if statement 
   }
+  if (mpux > 168 && mpux <178 ){
+     levelx = levelx + 1;
+     xservo.write(levelx);
+     Serial.println("Seven");
+  }
   else {
-    levelx = levelx + 1;
+    levelx = levelx + 10; //if problematic change to 1 rather than 10
     xservo.write(levelx); //moves the x motor to one side until it is level
     delay(1000);
+    Serial.println("Eight");
   }
-
+  Serial.print("MPU-X =");
+  Serial.println(mpux);
 }
-////first motion 
-//if (mpuy < -2 && mpuy >=-20) { //to make small angle movements when close to level
-//  if (mpuy == -3){
-//    return;  //if it is already level, it ends the code
-//  }
-//  else{
-//    levely = levely + 1; //levely = levely + 1;
-//    yservo.write(levely);//moves the y motor to one side until it is level
-//    delay(1000);
-//  Serial.println("TRIGGER 1");
-//  }
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
-//}
-//if (mpuy < -20 && mpuy >=-90) { //big angle movements when very far from level
-// 
-//    levely = levely + 10; //levely = levely + 1;
-//    yservo.write(levely);//moves the y motor to one side until it is level
-//    delay(1000);
-//  Serial.println("TRIGGER 2");
-//}
-//  else {
-//   return;
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
-//}
-//
-//// second motion 
-//if (mpuy <=20 && mpuy > -2){
-//  if (mpuy ==0 || abs(mpuy) ==1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
-//    return; //if level already, moves out
-//  }
-//  else{
-//
-//    levely = levely - 2; // levely = levely - 1
-//    yservo.write(levely); // moves the y motor to one side until it is level
-//    delay(1000);
-//    Serial.println("TRIGGER 3");
-//  }
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
-//}
-//if (mpuy <= 90 && mpuy > 20){
-// 
-//    levely = levely - 10; // levely = levely - 10
-//    yservo.write(levely); // moves the y motor to one side until it is level
-//    delay(1000);
-//    Serial.println("TRIGGER 4");
-//    Serial.print("MPU-Y =");
-//    Serial.println(mpuy);
-//  }
-//  else {
-//    return;
-//}
-//
-////xservo
-//
-//// first motion
-//if (mpux > -180 && mpux <= -170) {
-//  if (mpux == -180 || mpux == -179 || mpux == -178){
-//    return; //if x side is level, moves out of the if statement
-//  }
-//  else {
-//    levelx = levelx - 2; // levelx = levelx - 1
-//    xservo.write(levelx); //moves the x motor to one side until it is level
-//    delay(1000);
-//  }
-//   Serial.println("TRIGGER 5");
-//  Serial.print("MPU-X =");
-//  Serial.println(mpux);
-//}
-//if (mpux > -170 && mpux <= - 90) {
-//
-//    levelx = levelx - 10; // levelx = levelx - 1
-//    xservo.write(levelx); //moves the x motor to one side until it is level
-//    delay(1000);
-//    Serial.println("TRIGGER 7");
-//    Serial.print("MPU-X =");
-//    Serial.println(mpux);
-//    
-//  }
-//  else {
-//    return;
-//}
-//
-////second motion 
-//if (mpux >= 170 && mpux < 180){
-//  if (mpux == 180 || mpux == 179){
-//    return; // if x side is level, moves out of the if statement 
-//  }
-//  else {
-//    levelx = levelx + 2; //levelx = levelx + 1;
-//    xservo.write(levelx); //moves the x motor to one side until it is level
-//    delay(1000);
-//  }
-//  Serial.println("Triggered 8");
-//  Serial.print("MPU-X =");
-//  Serial.println(mpux);
-//
-//}
-//if (mpux >= 90 && mpux < 170){
-//    levelx = levelx + 10; //levelx = levelx + 1;
-//    xservo.write(levelx); //moves the x motor to one side until it is level
-//    delay(1000);
-//  Serial.println("Triggered 9");
-//  Serial.print("MPU-X =");
-//  Serial.println(mpux);
-//
-//}
-//else {
-//  return;
-//}
-
 
 delay(1000);
 
