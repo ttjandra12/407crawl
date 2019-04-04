@@ -1,5 +1,6 @@
+//Include libraries
 #include "VL53L0X.h"            //Changed library .h file (previous: "VL53L0X.h")
-#include <Wire.h>               // Libraries already included as default in Arduino   
+#include <Wire.h>           
 #include <VL53L0X.h>
 #include <Servo.h>
 #include <SPI.h>
@@ -23,22 +24,23 @@ double mpuy;
 
 #define BNO055_SAMPLERATE_DELAY_MS (100)
 
-Adafruit_BNO055 bno = Adafruit_BNO055();
+Adafruit_BNO055 bno = Adafruit_BNO055(4, BNO055_ADDRESS_B);
 
 VL53L0X ToF_sensor;
 VL53L0X Scissor_Sensor;
 
 File myFile;
 
-// Define Variables:
-const int chA=30;  //Constant variables relating to pin locations
+//Constant variables relating to pin locations
+const int chA=30;
 const int chB=31;
 const int chC=32;
 const int chD=33;
 const int chE=34;
 const int chF=35;
 
-int ch1;  //Varibles to store and display the values of each channel
+//Varibles to store and display the values of each channel
+int ch1;
 int ch2;
 int ch3;
 int ch4;
@@ -97,10 +99,12 @@ void level();
 void return_func();
 void selectMuxPin(byte pin);
 
-void pin_ISR(){                         // Interrupt function 
+// Interrupt function
+void pin_ISR(){  
   trigger = 1; 
 }
 
+//Variables used in the sensor carousel
 const int selectPins[3] = {43, 45, 47}; // S0~2, S1~3, S2~4
 const int Y1Input = 44; // Connect output Y1 to
 const int Y2Input = 46; // Connect output Y2 
@@ -138,14 +142,18 @@ void setup() {
   servo1.attach(13);
   servo2.attach(12);
   cont_servo.attach(7);
-  xservo.attach(11); //attach to the correct pin
-  yservo.attach(6); //attach to the correct pin
+  xservo.attach(11);
+  yservo.attach(10);
 
   //Set the pins of the ToF sensors as outputs and give them a low value
   pinMode(9, OUTPUT); // Pin for ToF sensor
   pinMode(12, OUTPUT); //Pin for scissor sensor
+  pinMode(8, OUTPUT); //Pin for NPU
+ 
   digitalWrite(9, LOW);
   digitalWrite(12, LOW);
+  digitalWrite(8, HIGH);
+  
 
   #define HIGH_ACCURACY
   Wire.begin();
@@ -165,7 +173,8 @@ void setup() {
   delay(100);
   Scissor_Sensor.setAddress((uint8_t)25);
   Scissor_Sensor.setMeasurementTimingBudget(20000);
-
+  
+  //Initialize the SD card
   Serial.print("Initializing SD card....");
   if (!SD.begin(53)){
     Serial.println("Initialization failed!");
@@ -183,28 +192,38 @@ void setup() {
   pinMode(Y1Input, INPUT); // Set up Y1 as an input
   pinMode(Y2Input, INPUT); // Set up Y2 as an input
 
-  if (!SD.begin(53)) {
-    Serial.println("SD card is not connected");
-    return;
-  }
-
+  //Stuff for the leveling platform
   bno.setExtCrystalUse(true);
-
-  levelx = 90; // initial x level
-  levely = 99; //initial y level 
+  levelx = 120; // initial x level
+  levely = 120; //initial y level 
 
   xservo.write(levelx); //moves x servo
   yservo.write(levely); //moves y servo
+
+   /* Initialise the sensor */
+  if(!bno.begin())
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while(1);
+  }
+
+  /* Display the current temperature */
+  int8_t temp = bno.getTemp();
+
+
+  bno.setExtCrystalUse(true);
 }
 
 void loop() {
-
+  //Get the initial height of the scissor jack. The if statement will only loop once
   if (trigger_first_height ==0)
   {
     float initial_height = Scissor_Sensor.readRangeSingleMillimeters();
     trigger_first_height = 1;
     Serial.print("The intial height of the Scissor Jack is: ");
     Serial.println(initial_height);
+    recorded_height = initial_height;
   }
   
   ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
@@ -373,14 +392,16 @@ void loop() {
   //Read the CH6 input
   ch6_CurrRead = ch6;
   int delta_ch6= abs(ch6_CurrRead-ch6_PrevRead);
-    
-  if(delta_ch6 > ch6_change) //if the switch changes position the scissor jack will move.
+
+  //if the switch changes position the scissor jack will start moving.
+  if(delta_ch6 > ch6_change)
   {
 
     cont_servo.writeMicroseconds(1560);
     feedback360();
     trigger = 0;
 
+    //Record the height of the scissor jack after it has hit the laser
     recorded_height = Scissor_Sensor.readRangeSingleMillimeters();
     Serial.print("The Recorded Height is: ");
     Serial.println(recorded_height);
@@ -395,17 +416,23 @@ void loop() {
   //Read the CH5 input
   ch5_CurrRead = ch5;
   int delta_ch5= abs(ch5_CurrRead-ch5_PrevRead);
-    
-  if(delta_ch5 > ch5_change ) //if the nob is turned past a certain point, record sensor readouts.
+
+  //if the nob is turned past a certain point, record sensor readouts.
+  if(delta_ch5 > ch5_change )
   {
     String dataString = "";
 
     //this for loop collects data from the 3 sensors 
     for (int i = 0; i < 3; i++){
       Serial.println(String(i));
+      
       //Data from the ToF Sensor
       if (i == 1){
         level();
+        
+        //Re attach the x and y servos
+        xservo.attach(11);
+        yservo.attach(10);
         
         float sensor = ToF_sensor.readRangeSingleMillimeters();
         dataString += "," + String(sensor);
@@ -413,6 +440,7 @@ void loop() {
       //Data from the NPU in the leveling platform
       if (i == 0){
         imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+
         
         float sensor1 = euler.y(); //pitch in degrees
         float sensor2 = euler.z(); //roll in degrees
@@ -421,7 +449,7 @@ void loop() {
       //Height from the scissor sensor
       if (i == 2){
         dataString += ",";
-        float height = recorded_height; //get the height adjustment by mutiplying angular displacement with corresponding quantity
+        float height = recorded_height;
         dataString += String(height);
       }
     }
@@ -637,7 +665,7 @@ void selectMuxPin(byte pin)
 
 void level()
 {
-  while(1) {
+
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
   /* Display the floating point data */
@@ -646,68 +674,118 @@ void level()
   mpuy = round(euler.y()); //rounds the mpu values to move the motor and reduce noise for if statement
 
 // yservo 
+
 if (mpuy < -2 && mpuy >=-90) {
   if (mpuy == -3){
     return;  //if it is already level, it ends the code
   }
-  else{
+  if (mpuy <-3 && mpuy >= -20){
     levely = levely + 1;
-    yservo.write(levely); //moves the y motor to one side until it is level
+    yservo.write(levely);
+    Serial.println("One");
   }
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
+  else{
+    levely = levely + 10; // if problem change to 1 rather than 10
+    yservo.write(levely);//moves the y motor to one side until it is level
+    delay(1000);
+    Serial.println("Two");
+ 
+  }
+  Serial.print("MPU-Y =");
+  Serial.println(mpuy);
 }
 
 
 if (mpuy <=90 && mpuy > -2){
-  if (mpuy ==0 || mpuy ==-1 || mpuy ==1){
+  if (mpuy ==0 || abs(mpuy) ==1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
     return; //if level already, moves out
   }
+ if (mpuy <= 20 && mpuy > 4){
+   levely = levely - 1;
+   yservo.write(levely);
+   Serial.println("Three");
+ }
   else{
-
-    levely = levely - 1;
+    levely = levely - 10; //if problem change to 1 rather than 10
     yservo.write(levely); // moves the y motor to one side until it is level
+    delay(1000);
+    Serial.println("Four");
   }
-//  Serial.print("MPU-Y =");
-//  Serial.println(mpuy);
+  Serial.print("MPU-Y =");
+  Serial.println(mpuy);
 }
 
 //xservo
-if (mpux >= -180 && mpux <= - 90) {
+if (mpux > -180 && mpux <= - 90) {
   if (mpux == -180 || mpux == -179 || mpux == -178){
     return; //if x side is level, moves out of the if statement
   }
-  else {
-    levelx = levelx - 1;
-    xservo.write(levelx); //moves the x motor to one side until it is level
+  if (mpux > -178 && mpux <= -168){
+    levelx = levelx - 1;  
+    xservo.write(levelx);
+    Serial.println("Five");
   }
-//  Serial.print("MPU-X =");
-//  Serial.println(mpux);
+  else {
+    levelx = levelx - 10; //if problematic change to 1 rathen than 10
+    xservo.write(levelx); //moves the x motor to one side until it is level
+    delay(1000);
+    Serial.println("Six");
+  }
+  Serial.print("MPU-X =");
+  Serial.println(mpux);
 }
 
 if (mpux >= 90 && mpux < 180){
   if (mpux == 180 || mpux == 179){
     return; // if x side is level, moves out of the if statement 
   }
-  else {
-    levelx = levelx + 1;
-    xservo.write(levelx); //moves the x motor to one side until it is level
+  if (mpux > 168 && mpux <178 ){
+     levelx = levelx + 1;
+     xservo.write(levelx);
+     Serial.println("Seven");
   }
+  else {
+    levelx = levelx + 10; //if problematic change to 1 rather than 10
+    xservo.write(levelx); //moves the x motor to one side until it is level
+    delay(1000);
+    Serial.println("Eight");
+  }
+  Serial.print("MPU-X =");
+  Serial.println(mpux);
+}
+
+delay(1000);
+
+if (mpuy == -2 || mpuy == -3 || mpuy ==0 || mpuy== 1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
+  yservo.detach();
+  Serial.print("FINAL MPUY =");
+  Serial.println(mpuy); 
+  Serial.println("DONE WITH Y");
+}
+  else {
+    yservo.attach(9);
+    Serial.println("NOT DONE Y");
+    Serial.println(mpuy);
 
 }
- 
+  if(mpux == -180 || mpux == -179 || mpux == -178 ||mpux == 180 || mpux == 179){
+  xservo.detach();
+  Serial.print("FINAL MPUX =");
+  Serial.println(mpux);
+  
+  
+  Serial.println("LEVEL!");
+  }
+  else {
+  xservo.attach(8);
+  Serial.println("NOT DONE X");
+
+}
 
   /* Display calibration status for each sensor. */
   uint8_t system, gyro, accel, mag = 0; //calibrates the MPU, took straight from the example code 
   bno.getCalibration(&system, &gyro, &accel, &mag);
 
   delay(BNO055_SAMPLERATE_DELAY_MS);
-
-  if (mpuy ==0 || abs(mpuy) ==1){
-    if (abs(mpux) == 180 || abs(mpux) == 179){
-      break;
-      }
-    }
-  }
 }
 
