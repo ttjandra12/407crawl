@@ -61,8 +61,8 @@ void setup(void)
 
   Serial.println("Calibration status values: 0=uncalibrated, 3=fully calibrated");
 
-  levelx = 150; // initial x level 88
-  levely = 150; //initial y level 93
+  levelx = 120; // initial x level 88
+  levely = 120; //initial y level 93
   
 
   xservo.attach(8); //attach to the correct pin
