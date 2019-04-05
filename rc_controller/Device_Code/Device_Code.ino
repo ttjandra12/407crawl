@@ -214,12 +214,13 @@ void setup() {
     while(1);
   }
 
+  delay(1000);
+  
   /* Display the current temperature */
   int8_t temp = bno.getTemp();
 
 
   bno.setExtCrystalUse(true);
-  Serial.println("CHECK 1");
 }
 
 void loop() {
@@ -231,8 +232,22 @@ void loop() {
     Serial.print("The initial height of the Scissor Jack is: ");
     Serial.println(initial_height);
     recorded_height = initial_height;
+
+    //Write intial height into the SD card
+    myFile = SD.open("test.txt", FILE_WRITE);
+    if (myFile){
+      String Str = String(initial_height);
+      myFile.println(Str);
+      myFile.close();
+      Serial.println("Complete");
+      delay(1000);
+    } 
+    else {
+      Serial.println("FUCKKKKKKK");
+    }
     
     //Calibrate the MPU
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
     uint8_t system, gyro, accel, mag = 0;
     bno.getCalibration(&system, &gyro, &accel, &mag);
     Serial.println("MPU Calibrated");
@@ -464,6 +479,9 @@ void loop() {
         float sensor1 = euler.y(); //pitch in degrees
         float sensor2 = euler.z(); //roll in degrees
         dataString += String(sensor1) + "," + String(sensor2);
+
+        uint8_t system, gyro, accel, mag = 0;
+        bno.getCalibration(&system, &gyro, &accel, &mag);
       }
       //Height from the scissor sensor
       if (i == 2){
@@ -474,7 +492,7 @@ void loop() {
     }
 
     //opening file on SD card and writing data string onto it
-    myFile = SD.open("OUTPUT_FINAL.csv", FILE_WRITE);
+    myFile = SD.open("test.txt", FILE_WRITE);
     if (myFile){
       myFile.println(dataString);
       myFile.close();
