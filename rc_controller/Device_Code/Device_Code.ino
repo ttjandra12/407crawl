@@ -109,6 +109,10 @@ const int selectPins[3] = {43, 45, 47}; // S0~2, S1~3, S2~4
 const int Y1Input = 44; // Connect output Y1 to
 const int Y2Input = 46; // Connect output Y2 
 
+//Set triggers for the level function
+int y_trigger = 0;
+int x_trigger = 0;
+
 void setup() {
 
   Serial.begin(9600);
@@ -231,6 +235,7 @@ void loop() {
     //Calibrate the MPU
     uint8_t system, gyro, accel, mag = 0;
     bno.getCalibration(&system, &gyro, &accel, &mag);
+    Serial.println(gyro);
   }
   
   ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
@@ -435,14 +440,19 @@ void loop() {
       
       //Data from the ToF Sensor
       if (i == 1){
+         
         level();
+          
+        float sensor = ToF_sensor.readRangeSingleMillimeters();
+        dataString += "," + String(sensor);
         
         //Re attach the x and y servos
         xservo.attach(11);
         yservo.attach(10);
-        
-        float sensor = ToF_sensor.readRangeSingleMillimeters();
-        dataString += "," + String(sensor);
+
+        //Reset triggers
+        y_trigger = 0;
+        x_trigger = 0;
       } 
       //Data from the NPU in the leveling platform
       if (i == 0){
@@ -672,7 +682,8 @@ void selectMuxPin(byte pin)
 
 void level()
 {
-
+while (y_trigger == 0 || x_trigger == 0) {
+        
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
   /* Display the floating point data */
@@ -689,17 +700,13 @@ if (mpuy < -2 && mpuy >=-90) {
   if (mpuy <-3 && mpuy >= -20){
     levely = levely + 1;
     yservo.write(levely);
-    Serial.println("One");
   }
   else{
     levely = levely + 10; // if problem change to 1 rather than 10
     yservo.write(levely);//moves the y motor to one side until it is level
     delay(1000);
-    Serial.println("Two");
  
   }
-  Serial.print("MPU-Y =");
-  Serial.println(mpuy);
 }
 
 
@@ -710,16 +717,12 @@ if (mpuy <=90 && mpuy > -2){
  if (mpuy <= 20 && mpuy > 4){
    levely = levely - 1;
    yservo.write(levely);
-   Serial.println("Three");
  }
   else{
     levely = levely - 10; //if problem change to 1 rather than 10
     yservo.write(levely); // moves the y motor to one side until it is level
     delay(1000);
-    Serial.println("Four");
   }
-  Serial.print("MPU-Y =");
-  Serial.println(mpuy);
 }
 
 //xservo
@@ -730,16 +733,12 @@ if (mpux > -180 && mpux <= - 90) {
   if (mpux > -178 && mpux <= -168){
     levelx = levelx - 1;  
     xservo.write(levelx);
-    Serial.println("Five");
   }
   else {
     levelx = levelx - 10; //if problematic change to 1 rathen than 10
     xservo.write(levelx); //moves the x motor to one side until it is level
     delay(1000);
-    Serial.println("Six");
   }
-  Serial.print("MPU-X =");
-  Serial.println(mpux);
 }
 
 if (mpux >= 90 && mpux < 180){
@@ -749,50 +748,35 @@ if (mpux >= 90 && mpux < 180){
   if (mpux > 168 && mpux <178 ){
      levelx = levelx + 1;
      xservo.write(levelx);
-     Serial.println("Seven");
   }
   else {
     levelx = levelx + 10; //if problematic change to 1 rather than 10
     xservo.write(levelx); //moves the x motor to one side until it is level
     delay(1000);
-    Serial.println("Eight");
   }
-  Serial.print("MPU-X =");
-  Serial.println(mpux);
 }
 
 delay(1000);
 
 if (mpuy == -2 || mpuy == -3 || mpuy ==0 || mpuy== 1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
   yservo.detach();
-  Serial.print("FINAL MPUY =");
-  Serial.println(mpuy); 
   Serial.println("DONE WITH Y");
+  y_trigger = 1;
+  
 }
-  else {
-    yservo.attach(9);
-    Serial.println("NOT DONE Y");
-    Serial.println(mpuy);
 
-}
   if(mpux == -180 || mpux == -179 || mpux == -178 ||mpux == 180 || mpux == 179){
   xservo.detach();
-  Serial.print("FINAL MPUX =");
-  Serial.println(mpux);
+  Serial.print("DONE WITH X");
+  x_trigger = 1;
   
-  
-  Serial.println("LEVEL!");
   }
-  else {
-  xservo.attach(8);
-  Serial.println("NOT DONE X");
-
-}
 
   /* Display calibration status for each sensor. */
   uint8_t system, gyro, accel, mag = 0; //calibrates the MPU, took straight from the example code 
   bno.getCalibration(&system, &gyro, &accel, &mag);
 
   delay(BNO055_SAMPLERATE_DELAY_MS);
+}
 }
 
