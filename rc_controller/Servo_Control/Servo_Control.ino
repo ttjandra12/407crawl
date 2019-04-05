@@ -34,9 +34,9 @@ void setup() {
  pinMode(chE,INPUT_PULLUP);
  pinMode(chF,INPUT_PULLUP);
 
- servo1.attach(12);
+ servo1.attach(10);
  servo1.write(90);
- servo2.attach(13);
+ servo2.attach(11);
  servo2.write(90);
 }
 

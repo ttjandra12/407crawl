@@ -61,12 +61,12 @@ void setup(void)
 
   Serial.println("Calibration status values: 0=uncalibrated, 3=fully calibrated");
 
-  levelx = 120; // initial x level 88
+  levelx = 90; // initial x level 88
   levely = 120; //initial y level 93
   
 
-  xservo.attach(8); //attach to the correct pin
-  yservo.attach(9); //attach to the correct pin
+  xservo.attach(11); //attach to the correct pin
+  yservo.attach(10); //attach to the correct pin
 
   
   
@@ -74,7 +74,7 @@ void setup(void)
   yservo.write(levely); //moves y servo
   
   Serial.print("Angle Set Up");
-  delay(5000);
+  //delay(5000);
 }
 
 /**************************************************************************/

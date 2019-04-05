@@ -235,7 +235,8 @@ void loop() {
     //Calibrate the MPU
     uint8_t system, gyro, accel, mag = 0;
     bno.getCalibration(&system, &gyro, &accel, &mag);
-    Serial.println(gyro);
+    Serial.println("MPU Calibrated");
+    
   }
   
   ch1 = pulseIn (chA,HIGH);  //Read and store channel 1
@@ -440,15 +441,16 @@ void loop() {
       
       //Data from the ToF Sensor
       if (i == 1){
-         
-        level();
+        //while (y_trigger == 0 && x_trigger == 0) {
+        //level();
+        //}
           
         float sensor = ToF_sensor.readRangeSingleMillimeters();
         dataString += "," + String(sensor);
         
         //Re attach the x and y servos
-        xservo.attach(11);
-        yservo.attach(10);
+        //xservo.attach(11);
+       // yservo.attach(10);
 
         //Reset triggers
         y_trigger = 0;
@@ -682,7 +684,7 @@ void selectMuxPin(byte pin)
 
 void level()
 {
-while (y_trigger == 0 || x_trigger == 0) {
+//while (y_trigger == 0 && x_trigger == 0) {
         
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
@@ -725,6 +727,9 @@ if (mpuy <=90 && mpuy > -2){
   }
 }
 
+Serial.print("MPU-Y=");
+Serial.println(mpuy);
+
 //xservo
 if (mpux > -180 && mpux <= - 90) {
   if (mpux == -180 || mpux == -179 || mpux == -178){
@@ -756,6 +761,9 @@ if (mpux >= 90 && mpux < 180){
   }
 }
 
+Serial.print("MPU-X=");
+Serial.println(mpux);
+
 delay(1000);
 
 if (mpuy == -2 || mpuy == -3 || mpuy ==0 || mpuy== 1 || mpuy ==2 || mpuy == 3 || mpuy == 4){
@@ -778,5 +786,5 @@ if (mpuy == -2 || mpuy == -3 || mpuy ==0 || mpuy== 1 || mpuy ==2 || mpuy == 3 ||
 
   delay(BNO055_SAMPLERATE_DELAY_MS);
 }
-}
+//}
 
