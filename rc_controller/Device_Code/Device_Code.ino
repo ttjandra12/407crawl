@@ -75,6 +75,7 @@ int ch5_CurrRead = 0;
 int ch6_change = 700;
 int ch6_PrevRead = 1200;
 int ch6_CurrRead = 0;
+int vel = 180;
 
 
 int pinFeedback = 8; //yellow cable of the continous servo
@@ -152,11 +153,11 @@ void setup() {
 
   //Set the pins of the ToF sensors as outputs and give them a low value
   pinMode(9, OUTPUT); // Pin for ToF sensor
-  pinMode(12, OUTPUT); //Pin for scissor sensor
+  pinMode(6 , OUTPUT); //Pin for scissor sensor
   pinMode(8, OUTPUT); //Pin for NPU
  
   digitalWrite(9, LOW);
-  digitalWrite(12, LOW);
+  digitalWrite(6, LOW);
   digitalWrite(8, HIGH);
   
 
@@ -173,7 +174,7 @@ void setup() {
   
 
   //Setup Scissor Sensor and give it an address
-  pinMode(12, INPUT);
+  pinMode(6, INPUT);
   delay(150);
   Scissor_Sensor.init(true);// WTF 2.0
   delay(100);
@@ -468,8 +469,8 @@ void loop() {
        // yservo.attach(10);
 
         //Reset triggers
-        y_trigger = 0;
-        x_trigger = 0;
+        //y_trigger = 0;
+        //x_trigger = 0;
       } 
       //Data from the NPU in the leveling platform
       if (i == 0){
