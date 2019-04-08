@@ -41,6 +41,9 @@ Adafruit_BNO055 bno = Adafruit_BNO055();
 void setup(void)
 {
   Serial.begin(9600);
+
+  yservo.attach(10); //attach to the correct pin
+    yservo.write(90); //moves y servo
   Serial.println("Orientation Sensor Raw Data Test"); Serial.println("");
 
   /* Initialise the sensor */
@@ -71,7 +74,7 @@ void setup(void)
   
   
   xservo.write(levelx); //moves x servo
-  yservo.write(levely); //moves y servo
+  yservo.write(90); //moves y servo
   
   Serial.print("Angle Set Up");
   //delay(5000);
