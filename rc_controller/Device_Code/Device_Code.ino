@@ -75,21 +75,15 @@ int ch5_CurrRead = 0;
 int ch6_change = 700;
 int ch6_PrevRead = 1200;
 int ch6_CurrRead = 0;
-int vel = 180;
-
+int vel = 40;
+int vel2 = 60;
 
 int pinFeedback = 8; //yellow cable of the continous servo
 int pinControl = 7; //white cable of the continous servo
 
-float angle;
 float recorded_height;
-volatile int Kp = 1;  // Proportional Gain
-int turns = 0;
 
-int upper_limit = -2000;
-int lower_limit = 0;
-
-//The trigger will be used to run the parallax servo and the firt_height trigger to record the initial height of the scissor arm
+//The trigger will be used to run the continuous servo and the firt_height trigger to record the initial height of the scissor arm
 int trigger = 0;
 int trigger_first_height = 0;
 
@@ -149,7 +143,6 @@ void setup() {
   //Set the servos
   servo1.attach(10);
   servo2.attach(11);
-  cont_servo.attach(7);
   xservo.attach(13);
   yservo.attach(12);
 
@@ -173,7 +166,7 @@ void setup() {
   ToF_sensor.init(true); //WTF
   delay(100);
   ToF_sensor.setAddress((uint8_t)22);
-  ToF_sensor.setMeasurementTimingBudget(20000);
+  ToF_sensor.setMeasurementTimingBudget(200000);
 
 
   //Setup Scissor Sensor and give it an address
@@ -182,7 +175,7 @@ void setup() {
   Scissor_Sensor.init(true);// WTF 2.0
   delay(100);
   Scissor_Sensor.setAddress((uint8_t)25);
-  Scissor_Sensor.setMeasurementTimingBudget(20000);
+  Scissor_Sensor.setMeasurementTimingBudget(200000);
 
   //Initialize the SD card
   Serial.print("Initializing SD card....");
@@ -210,12 +203,12 @@ void setup() {
   xservo.write(levelx); //moves x servo
   yservo.write(levely); //moves y servo
 
-  /* Initialise the sensor */
+  // Initialise the sensor
   if (!bno.begin())
   {
-    /* There was a problem detecting the BNO055 ... check your connections */
+    //There was a problem detecting the BNO055 ... check your connections
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while (1);
+    //while (1);
   }
 
   delay(1000);
@@ -257,7 +250,6 @@ void loop() {
     Serial.println("MPU Calibrated");
 
   }
-
   ch1 = pulseIn (chA, HIGH); //Read and store channel 1
   ch2 = pulseIn (chB, HIGH); //Read and store channel 2
   ch3 = pulseIn (chC, HIGH); //Read and store channel 3
@@ -271,22 +263,22 @@ void loop() {
     if (ch3 < 1300)
     {
       // turn on motor one
-      analogWrite(enA, 120);
+      analogWrite(enA, vel);
       digitalWrite(in1, LOW);
       digitalWrite(in2, HIGH);
 
       // turn on motor two
-      analogWrite(enB, 120);
+      analogWrite(enB, vel);
       digitalWrite(in3, LOW);
       digitalWrite(in4, HIGH);
 
       // turn on motor three
-      analogWrite(enC, 120);
+      analogWrite(enC, vel);
       digitalWrite(in5, LOW);
       digitalWrite(in6, HIGH);
 
       // turn on motor four
-      analogWrite(enD, 120);
+      analogWrite(enD, vel);
       digitalWrite(in7, HIGH);
       digitalWrite(in8, LOW);
     }
@@ -306,22 +298,22 @@ void loop() {
     if (ch3 > 1700)
     {
       // turn on motor one, reverse
-      analogWrite(enA, 120);
+      analogWrite(enA, vel);
       digitalWrite(in1, HIGH);
       digitalWrite(in2, LOW);
 
       // turn on motor two, reverse
-      analogWrite(enB, 120);
+      analogWrite(enB, vel);
       digitalWrite(in3, HIGH);
       digitalWrite(in4, LOW);
 
       // turn on motor three, reverse
-      analogWrite(enC, 120);
+      analogWrite(enC, vel);
       digitalWrite(in5, HIGH);
       digitalWrite(in6, LOW);
 
       // turn on motor four, reverse
-      analogWrite(enD, 120);
+      analogWrite(enD, vel);
       digitalWrite(in7, LOW);
       digitalWrite(in8, HIGH);
     }
@@ -330,22 +322,22 @@ void loop() {
   if (ch4 < 1300)
   {
     // turn on motor one, forward
-    analogWrite(enA, 120);
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
+    analogWrite(enA, vel2);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
 
     // turn on motor two, reverse
-    analogWrite(enB, 120);
-    digitalWrite(in3, HIGH);
-    digitalWrite(in4, LOW);
+    analogWrite(enB, vel2);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
 
     // turn on motor three, reverse
-    analogWrite(enC, 120);
+    analogWrite(enC, vel2);
     digitalWrite(in5, HIGH);
     digitalWrite(in6, LOW);
 
     // turn on motor four, forward
-    analogWrite(enD, 120);
+    analogWrite(enD, vel2);
     digitalWrite(in7, HIGH);
     digitalWrite(in8, LOW);
   }
@@ -353,22 +345,22 @@ void loop() {
   if (ch4 > 1700)
   {
     // turn on motor one, reverse
-    analogWrite(enA, 120);
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
+    analogWrite(enA, vel2);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
 
     // turn on motor two, forward
-    analogWrite(enB, 120);
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
+    analogWrite(enB, vel2);
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
 
     // turn on motor three, forward
-    analogWrite(enC, 120);
+    analogWrite(enC, vel2);
     digitalWrite(in5, LOW);
     digitalWrite(in6, HIGH);
 
     // turn on motor four, reverse
-    analogWrite(enD, 120);
+    analogWrite(enD, vel2);
     digitalWrite(in7, LOW);
     digitalWrite(in8, HIGH);
   }
@@ -428,18 +420,20 @@ void loop() {
   //if the switch changes position the scissor jack will start moving.
   if (delta_ch6 > ch6_change)
   {
-
-    cont_servo.writeMicroseconds(1560);
+    cont_servo.attach(7);
+    cont_servo.write(150);
     feedback360();
     trigger = 0;
 
     //Record the height of the scissor jack after it has hit the laser
     recorded_height = Scissor_Sensor.readRangeSingleMillimeters();
-    Serial.print("The Recorded Height is: ");
+    Serial.print("The Recorded Height of the Scissor Jack is: ");
     Serial.println(recorded_height);
-    delay(5000);
+    delay(1000);
 
-    cont_servo.writeMicroseconds(1440);
+    cont_servo.attach(7);
+    cont_servo.write(0);
+    delay(3000);
     return_func();
 
     ch6_PrevRead = ch6_CurrRead;
@@ -463,9 +457,10 @@ void loop() {
         //while (y_trigger == 0 && x_trigger == 0) {
         //level();
         //}
-
         float sensor = ToF_sensor.readRangeSingleMillimeters();
         dataString += "," + String(sensor);
+        Serial.print("The Height Measurement is: ");
+        Serial.println(sensor);
 
         //Re attach the x and y servos
         //xservo.attach(11);
@@ -514,216 +509,64 @@ void loop() {
 }
 
 void feedback360() {
-
-  int unitsFC = 360;                        // Units in a full circle
-  int dutyScale = 100;                      // Scale duty cycle to 1/1000ths
-  float dcMin = 2.9;                        // Minimum duty cycle, 2.9%
-  float dcMax = 97.1;                       // Maximum duty cycle, 97.1%
-  int q2min = unitsFC / 4;                  // For checking if in 1st quadrant
-  int q3max = q2min * 3;                    // For checking if in 4th quadrant
-
-  // dc is duty cycle, theta is 0 to 359 angle, thetaP is theta from previous
-  // loop repetition, tHigh and tLow are the high and low signal times for
-  // duty cycle calculations.
-  float dc, tHigh, tLow, tCycle, theta, thetaP;
-
-  tLow = pulseIn(pinFeedback, LOW);          // Measure low time
-  tHigh = pulseIn(pinFeedback, HIGH);        // Measure high time
-  tCycle = tLow + tHigh;
-
-  // Calcualte initial duty cycle and angle.
-  dc = (dutyScale * tHigh) / (tHigh + tLow);
-  theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);
-  thetaP = theta;
-  while (1) {
-    // Measure high and low times, making sure to only take valid cycle
-    // times (a high and a low on opposite sides of the 0/359 boundary
-    // will not be valid.
-    while (1)                                   // Keep checking
+  while (1)
+  {
+    count += 1;
+    // Loop through all eight pins from the carousel.
+    for (byte pin = 0; pin <= 7; pin++)
     {
-      count += 1;
-      // Loop through all eight pins from the carousel.
-      for (byte pin = 0; pin <= 7; pin++)
-      {
-        selectMuxPin(pin); // Select one at a time
-        int inputY1Value = digitalRead(44); // and read Y1
-        int inputY2Value = digitalRead(46); // and read Y2
+      selectMuxPin(pin); // Select one at a time
+      int inputY1Value = digitalRead(44); // and read Y1
+      int inputY2Value = digitalRead(46); // and read Y2
 
-        Serial.print(String(inputY1Value) + "\t" + String(inputY2Value) + "\t");
+      Serial.print(String(inputY1Value) + "\t" + String(inputY2Value) + "\t");
 
 
-        if (inputY1Value == 1 || inputY2Value == 1) {
-          trigger = 1;
-        }
-      }
-      Serial.println();
-
-      tHigh = pulseIn(pinFeedback, LOW);        // Measure time high
-      tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
-      tCycle = tHigh + tLow;
-      if ((tCycle > 1000) && (tCycle < 1200)) { // If cycle time valid
-        break;                                  // break from loop
-      }
-
-      dc = (dutyScale * tHigh) / tCycle;          // Calculate duty cycle
-
-      // This gives a theta increasing in the counterclockwise direction.
-      theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);        // Calculate angle
-
-
-      if (theta < 0) {                           // Keep theta valid
-        theta = 0;
-      }
-      else if (theta > (unitsFC - 1)) {
-        theta = unitsFC - 1;
-      }
-
-      //These four lines of code accounts for rotation beyond 359 degrees.
-      // If transition from quadrant 4 to quadrant 1, increase turns count.
-      if ((theta < q2min) && (thetaP > q3max)) {
-        turns++;
-      }
-      // If transition from quadrant 1 to quadrant 4, decrease turns count.
-      else if ((thetaP < q2min) && (theta > q3max)) {
-        turns --;
-      }
-      // Construct the angle measurement from the turns count and current theta value.
-      if (turns >= 0) {
-        angle = (turns * unitsFC) + theta;
-      }
-      else if (turns <  0) {
-        angle = ((turns + 1) * unitsFC) - (unitsFC - theta);
-      }
-
-      thetaP = theta;                           // Theta previous for next rep
-
-      Serial.println(angle);
-
-      //Dummy system to control the scissor jack:
-      //When the number of loops exceeds 1300, the scissor jack will start to come down
-      if (count == 1300) {
-        cont_servo.writeMicroseconds(1440);          // Make the servo go backwards
-        count += -2600
-      }
-      if (count == 0) {
-        cont_servo.writeMicroseconds(1560);          // Make the servo go forward
-      }
-
-
-      //Controls the direction of the servo using the Hall Sensor in the servo
-      /*if (angle < upper_limit) {
-        cont_servo.writeMicroseconds(1440);          // Make the servo go backwards
-      }
-
-      if (angle > lower_limit) {
-        cont_servo.writeMicroseconds(1560);          // Make the servo go forward
-      }*/
-
-      if (trigger) {                      // Display angle in serial monitor if button presed
-        cont_servo.writeMicroseconds(1500);          // Stop the servo
-        delay(1000);
-        break;
+      if (inputY2Value == 1 || inputY1Value == 1) {
+        trigger = 1;
       }
     }
-    break;
+    Serial.println();
+    //Dummy system to control the scissor jack:
+    //When the number of loops exceeds 1300, the scissor jack will start to come down
+    if (count == 800) {
+      cont_servo.write(0);          // Make the servo go backwards
+      count += -1600;
+    }
+    if (count == 0) {
+      cont_servo.write(150);          // Make the servo go forward
+    }
+
+    if (trigger) {                      // Display angle in serial monitor if button presed
+      cont_servo.write(90);          // Stop the servo
+      cont_servo.detach();
+      delay(1000);
+      break;
+    }
   }
 }
 
 void return_func() {
-  int unitsFC = 360;                        // Units in a full circle
-  int dutyScale = 100;                      // Scale duty cycle to 1/1000ths
-  float dcMin = 2.9;                        // Minimum duty cycle, 2.9%
-  float dcMax = 97.1;                       // Maximum duty cycle, 97.1%
-  int q2min = unitsFC / 4;                  // For checking if in 1st quadrant
-  int q3max = q2min * 3;                    // For checking if in 4th quadrant
-
-  // dc is duty cycle, theta is 0 to 359 angle, thetaP is theta from previous
-  // loop repetition, tHigh and tLow are the high and low signal times for
-  // duty cycle calculations.
-  float dc, tHigh, tLow, tCycle, theta, thetaP;
-
-  tLow = pulseIn(pinFeedback, LOW);          // Measure low time
-  tHigh = pulseIn(pinFeedback, HIGH);        // Measure high time
-  tCycle = tLow + tHigh;
-
-  // Calcualte initial duty cycle and angle.
-  dc = (dutyScale * tHigh) / (tHigh + tLow);
-  theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);
-  thetaP = theta;
-
-  while (1) {
-    // Measure high and low times, making sure to only take valid cycle
-    // times (a high and a low on opposite sides of the 0/359 boundary
-    // will not be valid.
-    while (1)
-    {
-      tHigh = pulseIn(pinFeedback, LOW);        // Measure time high
-      tLow = pulseIn(pinFeedback, HIGH);        // Measure time low
-      tCycle = tHigh + tLow;
-      if ((tCycle > 1000) && (tCycle < 1200)) { // If cycle time valid
-        break;                                  // break from loop
-      }
-
-      dc = (dutyScale * tHigh) / tCycle;          // Calculate duty cycle
-
-      // This gives a theta increasing in the counterclockwise direction.
-      theta = (unitsFC - 1) - ((dc - dcMin) * unitsFC) / (dcMax - dcMin + 1);        // Calculate angle
-
-
-      if (theta < 0) {                           // Keep theta valid
-        theta = 0;
-      }
-      else if (theta > (unitsFC - 1)) {
-        theta = unitsFC - 1;
-      }
-
-      //These four lines of code accounts for rotation beyond 359 degrees.
-      // If transition from quadrant 4 to quadrant 1, increase turns count.
-      if ((theta < q2min) && (thetaP > q3max)) {
-        turns++;
-      }
-      // If transition from quadrant 1 to quadrant 4, decrease turns count.
-      else if ((thetaP < q2min) && (theta > q3max)) {
-        turns --;
-      }
-      // Construct the angle measurement from the turns count and current theta value.
-      if (turns >= 0) {
-        angle = (turns * unitsFC) + theta;
-      }
-      else if (turns <  0) {
-        angle = ((turns + 1) * unitsFC) - (unitsFC - theta);
-      }
-
-      thetaP = theta;                           // Theta previous for next rep
-
-      //Dummy system to control the scissor jack:
-      //The counter will starto go to zero and once it reaches zero the servo will stop
-      if (count > 0) {
-        count -= 1
-      }
-
-      if (count < 0) {
-        count += 1
-      }
-
-      if (count == 0) {
-        cont_servo.writeMicroseconds(1500); // Make the servo stop
-        break;
-      }
-
-      if (angle >= 0) {
-        cont_servo.writeMicroseconds(1500); // Make the servo stop
-        Serial.println("The return Angle is:");
-        Serial.println(angle);
-        break;
-      }
+  while (1)
+  {
+    //Dummy system to control the scissor jack:
+    //The counter will starto go to zero and once it reaches zero the servo will stop
+    if (count > 0) {
+      count -= 1;
     }
-    break;
+
+    if (count < 0) {
+      count += 1;
+    }
+    Serial.println(count);
+    
+    if (count == 0) {
+      cont_servo.write(90); // Make the servo stop
+      cont_servo.detach();
+      break;
+    }
   }
 }
-
-// The selectMuxPin function sets the S0, S1, and S2 pins
-// accordingly, given a pin from 0-7.
 
 void selectMuxPin(byte pin)
 {
