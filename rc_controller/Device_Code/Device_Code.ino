@@ -75,7 +75,7 @@ int ch5_CurrRead = 0;
 int ch6_change = 700;
 int ch6_PrevRead = 1200;
 int ch6_CurrRead = 0;
-int vel = 40;
+int vel = 55;
 int vel2 = 60;
 
 int pinFeedback = 8; //yellow cable of the continous servo
@@ -231,7 +231,7 @@ void loop() {
     recorded_height = initial_height;
 
     //Write intial height into the SD card
-    myFile = SD.open("test.txt", FILE_WRITE);
+    myFile = SD.open("ACCURACY.txt", FILE_WRITE);
     if (myFile) {
       String Str = String(initial_height);
       myFile.println(Str);
@@ -264,13 +264,13 @@ void loop() {
     {
       // turn on motor one
       analogWrite(enA, vel);
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
+      digitalWrite(in1, HIGH);
+      digitalWrite(in2, LOW);
 
       // turn on motor two
       analogWrite(enB, vel);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
+      digitalWrite(in3, HIGH);
+      digitalWrite(in4, LOW);
 
       // turn on motor three
       analogWrite(enC, vel);
@@ -299,13 +299,13 @@ void loop() {
     {
       // turn on motor one, reverse
       analogWrite(enA, vel);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
 
       // turn on motor two, reverse
       analogWrite(enB, vel);
-      digitalWrite(in3, HIGH);
-      digitalWrite(in4, LOW);
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, HIGH);
 
       // turn on motor three, reverse
       analogWrite(enC, vel);
@@ -323,13 +323,13 @@ void loop() {
   {
     // turn on motor one, forward
     analogWrite(enA, vel2);
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
 
     // turn on motor two, reverse
     analogWrite(enB, vel2);
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
 
     // turn on motor three, reverse
     analogWrite(enC, vel2);
@@ -346,13 +346,13 @@ void loop() {
   {
     // turn on motor one, reverse
     analogWrite(enA, vel2);
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
 
     // turn on motor two, forward
     analogWrite(enB, vel2);
-    digitalWrite(in3, HIGH);
-    digitalWrite(in4, LOW);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
 
     // turn on motor three, forward
     analogWrite(enC, vel2);
@@ -421,20 +421,26 @@ void loop() {
   if (delta_ch6 > ch6_change)
   {
     cont_servo.attach(7);
-    cont_servo.write(150);
-    feedback360();
+    cont_servo.write(120);
+    delay(6000);
+    cont_servo.write(0);
+    //feedback360();
     trigger = 0;
+    
+    delay(5500);
+    cont_servo.write(90);
+    cont_servo.detach();
 
     //Record the height of the scissor jack after it has hit the laser
     recorded_height = Scissor_Sensor.readRangeSingleMillimeters();
     Serial.print("The Recorded Height of the Scissor Jack is: ");
     Serial.println(recorded_height);
-    delay(1000);
+    delay(2000);
 
-    cont_servo.attach(7);
-    cont_servo.write(0);
-    delay(3000);
-    return_func();
+    //cont_servo.attach(7);
+    //cont_servo.write(0);
+    //delay(4000);
+    //return_func();
 
     ch6_PrevRead = ch6_CurrRead;
   }
@@ -491,7 +497,7 @@ void loop() {
     }
 
     //opening file on SD card and writing data string onto it
-    myFile = SD.open("test.txt", FILE_WRITE);
+    myFile = SD.open("ACCURACY.txt", FILE_WRITE);
     if (myFile) {
       myFile.println(dataString);
       myFile.close();
@@ -513,7 +519,7 @@ void feedback360() {
   {
     count += 1;
     // Loop through all eight pins from the carousel.
-    for (byte pin = 0; pin <= 7; pin++)
+    for (byte pin = 0; pin <= 6; pin++)
     {
       selectMuxPin(pin); // Select one at a time
       int inputY1Value = digitalRead(44); // and read Y1
@@ -522,7 +528,7 @@ void feedback360() {
       Serial.print(String(inputY1Value) + "\t" + String(inputY2Value) + "\t");
 
 
-      if (inputY2Value == 1 || inputY1Value == 1) {
+      if (/*inputY2Value == 1 ||*/ inputY1Value == 1) {
         trigger = 1;
       }
     }
@@ -534,7 +540,7 @@ void feedback360() {
       count += -1600;
     }
     if (count == 0) {
-      cont_servo.write(150);          // Make the servo go forward
+      cont_servo.write(120);          // Make the servo go forward
     }
 
     if (trigger) {                      // Display angle in serial monitor if button presed
